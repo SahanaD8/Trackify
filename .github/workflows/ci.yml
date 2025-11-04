@@ -1,0 +1,34 @@
+name: Frontend CI (HTML/CSS)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  lint-and-test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run HTML linter (htmlhint)
+        run: npm run lint:html
+
+      - name: Run CSS linter (stylelint)
+        run: npm run lint:css
+
+      - name: Run project tests (if any)
+        run: npm test
+
+      - name: Build (optional — if you have a build step)
+        run: npm run build
