@@ -1,4 +1,4 @@
-name: Frontend CI (HTML/CSS)
+name: HTML & CSS CI
 
 on:
   push:
@@ -7,28 +7,47 @@ on:
     branches: [ main ]
 
 jobs:
-  lint-and-test:
+  validate:
     runs-on: ubuntu-latest
+
     steps:
+      # Step 1: Checkout repo
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
+      # Step 2: Install Node.js (for linters)
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
-      - name: Install dependencies
-        run: npm ci
+      # Step 3: Install HTML & CSS linters
+      - name: Install linters
+        run: |
+          npm install -g htmlhint stylelint stylelint-config-standard
 
-      - name: Run HTML linter (htmlhint)
-        run: npm run lint:html
+      # Step 4: Validate HTML files
+      - name: Lint HTML files
+        run: |
+          htmlhint "**/*.html"
 
-      - name: Run CSS linter (stylelint)
-        run: npm run lint:css
+      # Step 5: Validate CSS files
+      - name: Lint CSS files
+        run: |
+          stylelint "**/*.css"
 
-      - name: Run project tests (if any)
-        run: npm test
+  # Optional: Deploy to GitHub Pages
+  deploy:
+    needs: validate
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
 
-      - name: Build (optional — if you have a build step)
-        run: npm run build
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
