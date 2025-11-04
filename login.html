@@ -1,168 +1,126 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-<head> 
-    <meta charset="UTF-8"> 
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
-    <title>Newspaper Page</title> 
-    <style> 
-        body { 
-            font-family: Arial, sans-serif; 
-            line-height: 1.6; 
-            margin: 0; 
-            padding: 0; 
-            background-color: #f2f2f2; 
-        } 
-        header { 
-            background-color: #333; 
-            color: #fff; 
-            padding: 20px; 
-            text-align: center; 
-            font-size: 1.5em; 
-        } 
-        nav { 
-            background-color: #555; 
-            color: #fff; 
-            padding: 10px; 
-            text-align: center; 
-        } 
-        main { 
-            display: flex; 
-            flex-direction: row; 
-            margin: 20px; 
-        } 
-        aside { 
-            width: 20%; 
-            padding: 15px; 
-            background-color: #eaeaea; 
-        } 
-        section { 
-            width: 60%; 
-            padding: 15px; 
-            background-color: #fff; 
-            margin: 0 10px; 
-        } 
-        article { 
-            background-color: #f8f8f8; 
-            padding: 15px; 
-            margin-bottom: 15px; 
-            border: 1px solid #ddd; 
-        } 
-        h2 { 
-            color: #333; 
-        } 
-        p { 
-            color: #555; 
-        } 
-        figure { 
-            margin: 10px 0; 
-            text-align: center; 
-        } 
-        figure img { 
-            width: 100%; 
-            max-width: 300px; 
-            height: auto; 
-        } 
-        figcaption { 
-            color: #666; 
-            font-size: 0.9em; 
-        } 
-        table { 
-            width: 100%; 
-            border-collapse: collapse; 
-            margin-top: 20px; 
-        } 
-        table, th, td { 
-            border: 1px solid #ddd; 
-            padding: 8px; 
-        } 
-        th { 
-            background-color: #f4f4f4; 
-            color: #333; 
-        } 
-        footer { 
-            background-color: #333; 
-            color: #fff; 
-            padding: 20px; 
-            text-align: center; 
-        } 
-    </style> 
-</head> 
-<body> 
- 
-<header> 
-    <h1>Daily News Digest</h1> 
-</header> 
- 
-<nav> 
-    <a href="#home" style="color: #fff; margin-right: 10px;">Home</a> 
-    <a href="#world" style="color: #fff; margin-right: 10px;">World</a> 
-    <a href="#sports" style="color: #fff; margin-right: 10px;">Sports</a> 
-    <a href="#entertainment" style="color: #fff;">Entertainment</a> 
-</nav> 
- 
-<main> 
-    <aside> 
-        <h3>Top Stories</h3> 
-        <ul> 
-            <li><a href="#story1">Economic Updates</a></li> 
-            <li><a href="#story2">Sports Highlights</a></li> 
-            <li><a href="#story3">Weather Report</a></li> 
-        </ul> 
-    </aside> 
- 
-    <section> 
-        <article id="story1"> 
-            <h2>Economic Growth in 2024</h2> 
-            <p>The economy has shown signs of growth in the past quarter...</p> 
-            <figure> 
-                <img src="economy.jpg" alt="Graph showing economic growth"> 
-                <figcaption>Economic trends in 2024</figcaption> 
-            </figure> 
-        </article> 
- 
-        <article id="story2"> 
-            <h2>Highlights from the World Cup</h2> 
-            <p>The World Cup has been filled with exciting moments...</p> 
-            <figure> 
-                <img src="worldcup.jpg" alt="World Cup image"> 
-                <figcaption>Celebrations at the stadium</figcaption> 
-            </figure> 
-        </article> 
- 
-        <article id="story3"> 
-            <h2>Weekly Weather Report</h2> 
-            <p>Here is the weather forecast for the upcoming week...</p> 
-            <table> 
-                <tr> 
-                    <th>Day</th> 
-                    <th>Weather</th> 
-                    <th>High</th> 
-                    <th>Low</th> 
-                </tr> 
-                <tr> 
-                    <td>Monday</td> 
-                    <td>Sunny</td> 
-                    <td>25°C</td> 
-                    <td>15°C</td> 
-                </tr> 
-                <tr> 
-                    <td>Tuesday</td> 
-                    <td>Cloudy</td> 
-                    <td>22°C</td> 
-                    <td>14°C</td> 
-                </tr> 
-                <tr> 
-                    <td>Wednesday</td> 
-                    <td>Rainy</td> 
-                    <td>20°C</td> 
-                    <td>12°C</td> 
-                </tr> 
-            </table> 
-        </article> 
-    </section> 
-</main> 
-<footer> 
-    <p>&copy; 2024 Daily News Digest - All rights reserved</p> 
-</footer> 
-</body> 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Visitor Sign-In | Trackify</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: "Poppins", sans-serif;
+    }
+
+   
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        background: url("../people.png") no-repeat center center;
+        background-size: cover;
+        background-attachment: fixed; /* helps reduce pixelation when scrolling */
+        image-rendering: auto;
+    }
+
+
+    /* White form box */
+    .container {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+      padding: 40px;
+      width: 380px;
+      text-align: center;
+      backdrop-filter: blur(6px);
+    }
+
+    .app-title {
+      color: #5a4fcf;
+      font-weight: 700;
+      font-size: 28px;
+      margin-bottom: 5px;
+    }
+
+    .app-subtitle {
+      color: #666;
+      margin-bottom: 25px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+      text-align: left;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 14px;
+      color: #333;
+    }
+
+    input,
+    select {
+      padding: 10px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    button {
+      background: linear-gradient(90deg, #667eea, #764ba2);
+      color: white;
+      font-weight: 600;
+      border: none;
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.9;
+      transform: translateY(-2px);
+    }
+
+    .name-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    .name-row input {
+      flex: 1;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="app-title">TRACKIFY</h1>
+    <p class="app-subtitle">WELCOME!</p>
+
+    <form>
+      <div class="name-row">
+        <div>
+          <label for="firstName">First Name *</label>
+          <input type="text" id="firstName" placeholder="First Name" required />
+        </div>
+        <div>
+          <label for="lastName">Last Name *</label>
+          <input type="text" id="lastName" placeholder="Last Name" required />
+        </div>
+      </div>
+
+      <div>
+        <label for="phone">Phone Number *</label>
+        <input type="tel" id="phone" placeholder="+91 XXXXXXXXXX" required />
+      </div>
+      <button type="submit">Send OTP</button>
+    </form>
+  </div>
+</body>
 </html>
