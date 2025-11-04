@@ -1,0 +1,136 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+<head> 
+    <meta charset="UTF-8"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    <title>Registration Pag</title> 
+    <style> 
+        /* Body Styling */ 
+        body { 
+            background-color: #e0f7fa; 
+            font-family: Arial, sans-serif; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        } 
+ 
+        /* Form Container */ 
+        .form-container { 
+            background-color: #ffffff; 
+            padding: 20px 30px; 
+            border-radius: 10px; 
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2); 
+            max-width: 400px; 
+            width: 100%; 
+        } 
+ 
+        /* Form Heading */ 
+        h2 { 
+            text-align: center; 
+            color: #090909; 
+            margin-bottom: 20px; 
+        } 
+ 
+        /* Table Styling */ 
+        table { 
+            width: 100%; 
+        } 
+ 
+        /* Label and Input Styling */ 
+        td { 
+            padding: 10px; 
+        } 
+ 
+        label { 
+            font-weight: bold; 
+            color: #555555; 
+        } 
+        input[type="text"], 
+        input[type="email"], 
+        input[type="password"] { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid #cccccc; 
+            border-radius: 5px; 
+        } 
+ 
+        /* Radio Buttons and Checkbox Styling */ 
+        .radio-group, 
+        .checkbox-group { 
+            display: flex; 
+            gap: 10px; 
+            align-items: center; 
+        } 
+        input[type="radio"], 
+        input[type="checkbox"] { 
+            margin-right: 5px; 
+        } 
+ 
+        /* Submit Button Styling */ 
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background-color: #5b4af5; 
+            color: #ffffff; 
+            border: none; 
+            border-radius: 5px; 
+            font-size: 16px; 
+            cursor: pointer; 
+            transition: background-color 0.3s ease; 
+        } 
+ 
+        button:hover { 
+            background-color: #004d40; 
+        } 
+    </style> 
+</head> 
+<body> 
+ 
+    <div class="form-container"> 
+        <h2>Registration Form</h2> 
+        <form action="#"> 
+            <table> 
+                <tr> 
+                    <td><label for="name">Name:</label></td> 
+                    <td><input type="text" id="name" name="name" 
+placeholder="Enter your name"></td> 
+                </tr> 
+                <tr> 
+                    <td><label for="email">Email:</label></td> 
+                    <td><input type="email" id="email" name="email" 
+placeholder="Enter your email"></td> 
+                </tr> 
+                <tr> 
+                    <td><label for="password">Password:</label></td> 
+                    <td><input type="password" id="password" name="password" 
+placeholder="Enter your password"></td> 
+                </tr> 
+                <tr> 
+                    <td><label for="gender">Gender:</label></td> 
+                    <td class="radio-group"> 
+                        <input type="radio" id="male" name="gender" value="male"> 
+                        <label for="male">Male</label> 
+                        <input type="radio" id="female" name="gender" 
+value="female"> 
+                        <label for="female">Female</label> 
+                    </td> 
+                </tr> 
+                <tr> 
+                    <td><label for="accept">Accept Terms:</label></td> 
+                    <td class="checkbox-group"> 
+                        <input type="checkbox" id="accept" name="accept"> 
+                        <label for="accept">I agree to the terms</label> 
+                    </td> 
+                </tr> 
+                <tr> 
+                    <td colspan="2"> 
+                        <button type="submit">Register</button> 
+                    </td> 
+                </tr> 
+            </table> 
+        </form> 
+    </div> 
+</body> 
+</html>
