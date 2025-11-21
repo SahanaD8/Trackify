@@ -72,7 +72,6 @@ A comprehensive cloud-based visitor management and staff entry/exit tracking sys
 - Node.js built-in server (for development)
 
 ### Additional Services
-- Twilio (SMS notifications)
 - Gmail SMTP (Email notifications)
 - ngrok (Local development tunneling)
 
@@ -195,10 +194,13 @@ DB_PORT=3306
 # JWT Secret (change this!)
 JWT_SECRET=your_secure_random_secret_key_here
 
-# Twilio SMS Configuration
-TWILIO_ACCOUNT_SID=your_twilio_account_sid
-TWILIO_AUTH_TOKEN=your_twilio_auth_token
-TWILIO_PHONE_NUMBER=+1234567890
+# Email Configuration
+EMAIL_SERVICE=gmail
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your_email@gmail.com
+EMAIL_PASSWORD=your_gmail_app_password
+EMAIL_FROM=TRACKIFY <your_email@gmail.com>
 
 # QR Code URL
 QR_CODE_URL=http://localhost:3000/scan
@@ -493,15 +495,16 @@ pm2 startup
 - ✅ Password hashing (bcrypt)
 - ✅ Role-based access control
 
-## 📱 SMS Notification Setup (Twilio)
+## 📧 Email Notification Setup (Gmail SMTP)
 
-1. Sign up at [Twilio](https://www.twilio.com/)
-2. Get your Account SID and Auth Token
-3. Get a Twilio phone number
-4. Update `.env` file with credentials
-5. Test SMS functionality
+1. Use a Gmail account for sending emails
+2. Generate an App Password (not your regular Gmail password):
+   - Go to Google Account → Security → 2-Step Verification → App passwords
+   - Generate a new app password for "Mail"
+3. Update `.env` file with your Gmail and app password
+4. Test email functionality
 
-**Development Mode:** SMS messages are logged to console instead of sending actual SMS.
+**Development Mode:** OTP will be displayed in console for testing.
 
 ## 🧪 Testing
 
@@ -524,8 +527,10 @@ OTP will be displayed in console during development.
 - Verify credentials in `.env`
 - Ensure database `trackify_db` exists
 
-### SMS Not Sending
-- Check Twilio credentials
+### Email Not Sending
+- Check Gmail app password is correct
+- Verify EMAIL_USER and EMAIL_PASSWORD in `.env`
+- Ensure 2-Step Verification is enabled on Gmail account
 - Verify phone number format (+country code)
 - In development, check console for OTP
 
@@ -554,8 +559,8 @@ This project is created for educational purposes.
 ## 🙏 Acknowledgments
 
 - QR Code functionality
-- Twilio for SMS services
-- MySQL for database
+- Gmail SMTP for email services
+- MySQL/PostgreSQL for database
 - Express.js for backend framework
 
 ---

@@ -6,7 +6,7 @@ This guide will walk you through deploying TRACKIFY to Render.com with PostgreSQ
 
 - GitHub account with your code pushed to repository
 - Render.com account (sign up at https://render.com)
-- Your Gmail app password and Twilio credentials ready
+- Your Gmail app password ready
 
 ## 🎯 Step-by-Step Deployment
 
@@ -83,16 +83,9 @@ This guide will walk you through deploying TRACKIFY to Render.com with PostgreSQ
    EMAIL_PASSWORD=bqon holg pzcf sduj
    EMAIL_FROM=TRACKIFY Visitor Management <vunnamthanuja_cse2023@ksit.edu.in>
    
-   # Twilio SMS Configuration
-   TWILIO_ACCOUNT_SID=AC148205181815a57a26c110b2a10c5013
-   TWILIO_AUTH_TOKEN=14d0e5b63ee52bcd199bd17f2b397522
-   TWILIO_PHONE_NUMBER=+17753256605
-   
-   # Staff Notifications
+   # Staff Notifications (Email only)
    STAFF_1_EMAIL=krishnagudi@ksit.edu.in
-   STAFF_1_PHONE=9964504954
    STAFF_2_EMAIL=shruthits@ksit.edu.in
-   STAFF_2_PHONE=9742194553
    ```
 
 5. Click **"Create Web Service"**

@@ -4,7 +4,6 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { promisePool } = require('../models/db');
 const { createOTP, verifyOTP } = require('../utils/otp');
-const { sendSMS } = require('../utils/sms');
 const emailService = require('../utils/emailService');
 
 /**
@@ -25,17 +24,19 @@ router.post('/send-otp', async (req, res) => {
         // Generate and store OTP
         const otp = await createOTP(phoneNumber, userType);
 
-        // Send OTP via Email if email provided, otherwise SMS
-        if (email) {
-            await emailService.sendOTP(email, otp, 'User');
-        } else {
-            const message = `Your TRACKIFY OTP is: ${otp}. Valid for 10 minutes.`;
-            await sendSMS(phoneNumber, message);
+        // Send OTP via Email (email is required)
+        if (!email) {
+            return res.status(400).json({
+                success: false,
+                message: 'Email is required for OTP verification'
+            });
         }
+        
+        await emailService.sendOTP(email, otp, 'User');
 
         res.json({
             success: true,
-            message: email ? 'OTP sent to your email successfully' : 'OTP sent successfully',
+            message: 'OTP sent to your email successfully',
             // Include OTP in development mode for testing
             otp: process.env.NODE_ENV === 'development' ? otp : undefined
         });

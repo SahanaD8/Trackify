@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { promisePool } = require('../models/db');
 const { createOTP, verifyOTP } = require('../utils/otp');
-const { sendSMS } = require('../utils/sms');
 const emailService = require('../utils/emailService');
 
 /**
