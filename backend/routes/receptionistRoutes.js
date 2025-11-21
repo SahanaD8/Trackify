@@ -2,7 +2,6 @@ const express = require('express');
 const router = express.Router();
 const { promisePool } = require('../models/db');
 const { verifyToken, checkRole } = require('../middleware/auth');
-const { sendVisitorStatusSMS, sendStaffVisitorAlertSMS } = require('../utils/sms');
 const emailService = require('../utils/emailService');
 
 /**
@@ -101,9 +100,6 @@ router.post('/process-visit', async (req, res) => {
                     'Security reasons'
                 );
             }
-        } else {
-            // Fallback to SMS if no email
-            await sendVisitorStatusSMS(visit.phone_number, status, visit.name);
         }
 
         // If accepted and visitor wants to meet staff, send notification to staff
@@ -121,12 +117,6 @@ router.post('/process-visit', async (req, res) => {
                     await emailService.sendStaffNotification(
                         staff.email,
                         staff.name,
-                        visit.name,
-                        visit.purpose
-                    );
-                } else if (staff.phone_number) {
-                    await sendStaffVisitorAlertSMS(
-                        staff.phone_number,
                         visit.name,
                         visit.purpose
                     );
