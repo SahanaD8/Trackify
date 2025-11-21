@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TRACKIFY - QR Scan</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🎯 TRACKIFY</h1>
+            <p class="tagline">Visitor & Staff Entry System</p>
+        </header>
+
+        <main class="scan-main">
+            <!-- Step 1: Phone Number Entry -->
+            <div id="phoneEntrySection" class="form-section">
+                <h2>Enter Phone Number</h2>
+                <div class="form-group">
+                    <label>Phone Number:</label>
+                    <input type="tel" id="phoneNumber" placeholder="Enter your phone number" maxlength="15" autofocus>
+                </div>
+                <button onclick="checkPhoneNumber()" class="btn-primary">Continue</button>
+            </div>
+
+            <!-- Step 2: Visitor Flow -->
+            <div id="visitorSection" class="form-section" style="display: none;">
+                <div class="role-indicator">
+                    <div class="btn-icon">👥</div>
+                    <h3>Visitor Check-in</h3>
+                </div>
+
+                <!-- New Visitor Registration -->
+                <div id="newVisitorForm" style="display: none;">
+                    <h4>New Visitor - Registration Required</h4>
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" id="visitorName" placeholder="Enter your name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <input type="email" id="visitorEmail" placeholder="Enter your email" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Place:</label>
+                        <input type="text" id="visitorPlace" placeholder="Enter your place" required>
+                    </div>
+                    <div class="form-group">
+                        <button onclick="sendVisitorOTP()" class="btn-secondary" type="button" style="width: 100%; margin-bottom: 10px;">Send OTP to Email</button>
+                    </div>
+                    <div class="form-group">
+                        <label>OTP (Check your email):</label>
+                        <input type="tel" id="visitorOTP" placeholder="Enter 6-digit OTP from email" maxlength="6" inputmode="numeric" autocomplete="one-time-code" required>
+                        <small style="color: #666; display: block; margin-top: 5px;">Enter the OTP you received in your email</small>
+                    </div>
+                    <button onclick="registerVisitor()" class="btn-primary">Register & Continue</button>
+                </div>
+
+                <!-- Existing Visitor / Visit Details -->
+                <div id="visitDetailsForm" style="display: none;">
+                    <h4>Visit Information</h4>
+                    <div class="form-group">
+                        <label>Purpose of Visit:</label>
+                        <textarea id="visitPurpose" placeholder="Enter purpose of your visit" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Whom to Meet:</label>
+                        <input type="text" id="whomToMeet" placeholder="Person or department name" required>
+                    </div>
+                    <div class="info-box">
+                        ⏰ <strong>Note:</strong> Your entry time will be recorded only after receptionist approval. You will receive an SMS notification.
+                    </div>
+                    <button onclick="submitVisitorRequest()" class="btn-primary">Submit Visit Request</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Staff Flow -->
+            <div id="staffSection" class="form-section" style="display: none;">
+                <div class="role-indicator">
+                    <div class="btn-icon">👔</div>
+                    <h3>Staff Entry/Exit</h3>
+                </div>
+
+                <!-- Staff Going Out -->
+                <div id="staffOutForm" style="display: none;">
+                    <h4>Staff Going Out</h4>
+                    <div class="form-group">
+                        <label>Purpose:</label>
+                        <textarea id="staffPurpose" placeholder="Reason for going out (e.g., Lunch, Bank work, Meeting)" rows="3" required></textarea>
+                    </div>
+                    <div class="info-box">
+                        ⏰ <strong>Note:</strong> Your exit time will be automatically recorded and sent to security.
+                    </div>
+                    <button onclick="submitStaffOut()" class="btn-primary">Record Exit</button>
+                </div>
+
+                <!-- Staff Coming In -->
+                <div id="staffInForm" style="display: none;">
+                    <h4>Staff Coming In</h4>
+                    <div class="info-box">
+                        ⏰ <strong>Note:</strong> Your entry time will be automatically recorded and sent to security.
+                    </div>
+                    <button onclick="submitStaffIn()" class="btn-primary">Record Entry</button>
+                </div>
+            </div>
+
+            <!-- Visitor Checkout Section -->
+            <div id="visitorCheckoutSection" class="form-section" style="display: none;">
+                <div class="role-indicator">
+                    <div class="btn-icon">👋</div>
+                    <h3>Visitor Check-out</h3>
+                </div>
+                <div class="info-box">
+                    ⏰ <strong>Note:</strong> Your exit time will be automatically recorded. Thank you for visiting!
+                </div>
+                <button onclick="submitVisitorCheckout()" class="btn-primary">Check-out</button>
+            </div>
+
+            <div id="messageBox" class="message-box" style="display: none;"></div>
+            
+            <button onclick="resetForm()" class="btn-secondary" style="margin-top: 20px; width: 100%;">Start Over</button>
+        </main>
+
+        <footer>
+            <p>&copy; 2024 TRACKIFY - Visitor Management System</p>
+        </footer>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script src="js/unified-scan.js"></script>
+</body>
+</html>

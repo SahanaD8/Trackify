@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receptionist Dashboard - TRACKIFY</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <h1>🎯 TRACKIFY</h1>
+            <p class="user-info">Receptionist Portal</p>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </nav>
+
+        <main class="dashboard-main">
+            <h2>Receptionist Dashboard</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Pending Approvals</h3>
+                    <p class="stat-number" id="pendingCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Accepted Today</h3>
+                    <p class="stat-number" id="acceptedCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Rejected Today</h3>
+                    <p class="stat-number" id="rejectedCount">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Total Visitors</h3>
+                    <p class="stat-number" id="totalCount">0</p>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>Pending Visit Requests</h3>
+                <div class="table-container">
+                    <table id="pendingVisitsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Place</th>
+                                <th>Purpose</th>
+                                <th>Whom to Meet</th>
+                                <th>Time</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="pendingVisitsBody">
+                            <tr>
+                                <td colspan="7" class="no-data">No pending requests</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>All Visits Today</h3>
+                <div class="table-container">
+                    <table id="allVisitsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Purpose</th>
+                                <th>Whom to Meet</th>
+                                <th>In Time</th>
+                                <th>Out Time</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="allVisitsBody">
+                            <tr>
+                                <td colspan="7" class="no-data">No visits today</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/receptionist-dashboard.js"></script>
+</body>
+</html>

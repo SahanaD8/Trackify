@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Security Dashboard - TRACKIFY</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+    <div class="dashboard-container">
+        <nav class="dashboard-nav">
+            <h1>🎯 TRACKIFY</h1>
+            <p class="user-info">Security Portal</p>
+            <button onclick="logout()" class="btn-logout">Logout</button>
+        </nav>
+
+        <main class="dashboard-main">
+            <h2>Security Dashboard</h2>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Visitors Today</h3>
+                    <p class="stat-number" id="totalVisitors">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Currently Inside</h3>
+                    <p class="stat-number" id="currentlyInside">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Staff Out</h3>
+                    <p class="stat-number" id="staffOut">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Staff In</h3>
+                    <p class="stat-number" id="staffIn">0</p>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>Visitor Status Today</h3>
+                <div class="table-container">
+                    <table id="visitorVisitsTable">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Purpose</th>
+                                <th>Whom to Meet</th>
+                                <th>In Time</th>
+                                <th>Out Time</th>
+                                <th>Status</th>
+                                <th>Approval</th>
+                            </tr>
+                        </thead>
+                        <tbody id="visitorVisitsBody">
+                            <tr>
+                                <td colspan="8" class="no-data">No visitors today</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="dashboard-section">
+                <h3>Staff Movement Today</h3>
+                <div class="table-container">
+                    <table id="staffLogsTable">
+                        <thead>
+                            <tr>
+                                <th>Staff ID</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Purpose</th>
+                                <th>Out Time</th>
+                                <th>In Time</th>
+                                <th>Type</th>
+                            </tr>
+                        </thead>
+                        <tbody id="staffLogsBody">
+                            <tr>
+                                <td colspan="7" class="no-data">No staff movements today</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <div id="messageBox" class="message-box"></div>
+
+    <script src="js/config.js"></script>
+    <script src="js/security-dashboard.js"></script>
+</body>
+</html>
