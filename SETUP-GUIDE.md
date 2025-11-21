@@ -137,9 +137,7 @@ Print the QR code from `public/qr-codes/trackify-qr-code.png`
 
 ## What You DON'T Need on New Laptop
 
-❌ **Firebase** - Not required for local operation  
-❌ **Render** - Not required for local operation  
-❌ **Cloud services** - Everything runs locally
+❌ **Cloud services** - Everything runs locally (until you deploy to Render)
 
 ---
 
