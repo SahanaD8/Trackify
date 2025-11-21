@@ -13,7 +13,6 @@ A comprehensive cloud-based visitor management and staff entry/exit tracking sys
 - [Running the Application](#running-the-application)
 - [User Roles & Workflows](#user-roles--workflows)
 - [API Documentation](#api-documentation)
-- [Firebase Integration](#firebase-integration)
 - [Deployment](#deployment)
 - [Security Features](#security-features)
 
@@ -74,7 +73,8 @@ A comprehensive cloud-based visitor management and staff entry/exit tracking sys
 
 ### Additional Services
 - Twilio (SMS notifications)
-- Firebase (Cloud deployment - optional)
+- Gmail SMTP (Email notifications)
+- ngrok (Local development tunneling)
 
 ## 🏗 System Architecture
 
@@ -455,53 +455,17 @@ GET /api/principal/report-range?fromDate=2024-01-01&toDate=2024-01-15
 Authorization: Bearer {token}
 ```
 
-## 🔥 Firebase Integration
-
-### Step 1: Create Firebase Project
-1. Go to [Firebase Console](https://console.firebase.google.com/)
-2. Click "Add Project"
-3. Follow the setup wizard
-
-### Step 2: Get Firebase Credentials
-1. Go to Project Settings → Service Accounts
-2. Click "Generate New Private Key"
-3. Download the JSON file
-
-### Step 3: Update Environment Variables
-Add to `backend/.env`:
-
-```env
-FIREBASE_PROJECT_ID=your-project-id
-FIREBASE_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-FIREBASE_CLIENT_EMAIL=firebase-adminsdk-xxxxx@your-project-id.iam.gserviceaccount.com
-```
-
-### Step 4: Enable Firebase Features
-Uncomment Firebase code in `backend/utils/firebase.js`
-
 ## 🌐 Deployment
 
-### Option 1: Deploy to Firebase Hosting
+### Option 1: Deploy to Render.com (Recommended)
 
-1. Install Firebase CLI:
-```powershell
-npm install -g firebase-tools
-```
+1. Create account on [Render.com](https://render.com)
+2. Create new Web Service
+3. Connect your GitHub repository
+4. Configure environment variables from `.env`
+5. Deploy automatically
 
-2. Login to Firebase:
-```powershell
-firebase login
-```
-
-3. Initialize Firebase:
-```powershell
-firebase init
-```
-
-4. Deploy:
-```powershell
-firebase deploy
-```
+**Note:** You'll need to migrate from MySQL to PostgreSQL for Render deployment.
 
 ### Option 2: Deploy to Traditional Hosting
 

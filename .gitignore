@@ -37,11 +37,6 @@ pids/
 Thumbs.db
 desktop.ini
 
-# Firebase
-.firebase/
-firebase-debug.log
-.firebaserc
-
 # Temporary files
 tmp/
 temp/
