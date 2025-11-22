@@ -1,8 +1,7 @@
 require('dotenv').config();
 
 // Detect which database to use based on environment
-const isProduction = process.env.NODE_ENV === 'production';
-const usePostgres = process.env.DB_PORT === '5432' || isProduction;
+const usePostgres = !!process.env.DATABASE_URL;
 
 let pool, promisePool;
 
