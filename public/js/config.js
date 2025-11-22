@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = 'https://feal-genny-caecal.ngrok-free.dev/api';
+const API_BASE_URL = 'https://trackify-deploy.onrender.com';
 
 // API Endpoints
 const API_ENDPOINTS = {
