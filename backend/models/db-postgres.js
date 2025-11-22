@@ -52,9 +52,16 @@ const testConnection = async () => {
             console.log('✅ PostgreSQL Database connected successfully');
             client.release();
         } else {
-            const connection = await promisePool.getConnection();
-            console.log('✅ MySQL Database connected successfully');
-            connection.release();
+            const connection = isPostgres
+                ? await pool.connect()
+                : await promisePool.getConnection();
+            if (isPostgres) {
+                console.log('✅ PostgreSQL Database connected successfully');
+                connection.release();
+            } else {
+                console.log('✅ MySQL Database connected successfully');
+                connection.release();
+            }
         }
         return true;
     } catch (error) {
