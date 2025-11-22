@@ -9,20 +9,13 @@ let pool, promisePool;
 if (usePostgres) {
     // PostgreSQL for Render deployment
     const { Pool } = require('pg');
-    
     pool = new Pool({
-        host: process.env.DB_HOST || 'localhost',
-        user: process.env.DB_USER || 'postgres',
-        password: process.env.DB_PASSWORD || '',
-        database: process.env.DB_NAME || 'trackify_db',
-        port: process.env.DB_PORT || 5432,
+        connectionString: process.env.DATABASE_URL,
         ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
     });
-    
     // Create promise-based wrapper for PostgreSQL
     promisePool = {
         execute: async (query, params) => {
-            // Convert MySQL ? placeholders to PostgreSQL $1, $2, etc.
             let pgQuery = query;
             if (params && params.length > 0) {
                 params.forEach((_, index) => {
@@ -43,7 +36,6 @@ if (usePostgres) {
             return [result.rows, result.fields];
         }
     };
-    
     console.log('🐘 Using PostgreSQL database');
 } else {
     // MySQL for local development
