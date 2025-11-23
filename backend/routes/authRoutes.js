@@ -65,7 +65,8 @@ router.post('/login', async (req, res) => {
         }
 
         // Get user details based on user type
-        let query = `SELECT * FROM ${userType} WHERE phone_number = ?`;
+        let tableName = `${userType}_credentials`;
+        let query = `SELECT * FROM ${tableName} WHERE phone_number = ?`;
         const [rows] = await promisePool.execute(query, [phoneNumber]);
 
         if (rows.length === 0) {
