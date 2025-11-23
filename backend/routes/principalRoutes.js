@@ -14,25 +14,48 @@ router.get('/daily-report', async (req, res) => {
 
         // Get visitor visits for the day
         const visitorQuery = `
-            SELECT vv.*, v.name, v.phone_number, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE DATE(vv.in_time) = ?
-            ORDER BY vv.in_time ASC
+            SELECT *
+            FROM visitors
+            WHERE DATE(check_in_time) = ?
+            ORDER BY check_in_time ASC
         `;
 
         const [visitorRows] = await promisePool.execute(visitorQuery, [reportDate]);
 
         // Get staff logs for the day
         const staffQuery = `
-            SELECT sl.*, s.name, s.phone_number, s.department
-            FROM staff_logs sl
-            JOIN staff s ON sl.staff_id = s.staff_id
-            WHERE DATE(sl.created_at) = ?
-            ORDER BY sl.created_at ASC
+            SELECT 
+                'entry' as log_type,
+                sel.id,
+                sel.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                sel.purpose,
+                sel.entry_time as created_at
+            FROM staff_entry_logs sel
+            JOIN staff s ON sel.staff_id = s.id
+            WHERE DATE(sel.entry_time) = ?
+            
+            UNION ALL
+            
+            SELECT 
+                'exit' as log_type,
+                sxl.id,
+                sxl.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                NULL as purpose,
+                sxl.exit_time as created_at
+            FROM staff_exit_logs sxl
+            JOIN staff s ON sxl.staff_id = s.id
+            WHERE DATE(sxl.exit_time) = ?
+            
+            ORDER BY created_at ASC
         `;
 
-        const [staffRows] = await promisePool.execute(staffQuery, [reportDate]);
+        const [staffRows] = await promisePool.execute(staffQuery, [reportDate, reportDate]);
 
         // Number the records
         const numberedVisitors = visitorRows.map((visitor, index) => ({
@@ -85,25 +108,48 @@ router.get('/report-range', async (req, res) => {
 
         // Get visitor visits for the date range
         const visitorQuery = `
-            SELECT vv.*, v.name, v.phone_number, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE DATE(vv.in_time) BETWEEN ? AND ?
-            ORDER BY vv.in_time ASC
+            SELECT *
+            FROM visitors
+            WHERE DATE(check_in_time) BETWEEN ? AND ?
+            ORDER BY check_in_time ASC
         `;
 
         const [visitorRows] = await promisePool.execute(visitorQuery, [fromDate, toDate]);
 
         // Get staff logs for the date range
         const staffQuery = `
-            SELECT sl.*, s.name, s.phone_number, s.department
-            FROM staff_logs sl
-            JOIN staff s ON sl.staff_id = s.staff_id
-            WHERE DATE(sl.created_at) BETWEEN ? AND ?
-            ORDER BY sl.created_at ASC
+            SELECT 
+                'entry' as log_type,
+                sel.id,
+                sel.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                sel.purpose,
+                sel.entry_time as created_at
+            FROM staff_entry_logs sel
+            JOIN staff s ON sel.staff_id = s.id
+            WHERE DATE(sel.entry_time) BETWEEN ? AND ?
+            
+            UNION ALL
+            
+            SELECT 
+                'exit' as log_type,
+                sxl.id,
+                sxl.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                NULL as purpose,
+                sxl.exit_time as created_at
+            FROM staff_exit_logs sxl
+            JOIN staff s ON sxl.staff_id = s.id
+            WHERE DATE(sxl.exit_time) BETWEEN ? AND ?
+            
+            ORDER BY created_at ASC
         `;
 
-        const [staffRows] = await promisePool.execute(staffQuery, [fromDate, toDate]);
+        const [staffRows] = await promisePool.execute(staffQuery, [fromDate, toDate, fromDate, toDate]);
 
         // Number the records
         const numberedVisitors = visitorRows.map((visitor, index) => ({
@@ -149,10 +195,11 @@ router.get('/stats', async (req, res) => {
         // Today's statistics
         const todayStatsQuery = `
             SELECT 
-                (SELECT COUNT(*) FROM visitor_visits WHERE DATE(in_time) = CURDATE()) as today_visitors,
-                (SELECT COUNT(*) FROM staff_logs WHERE DATE(created_at) = CURDATE()) as today_staff_logs,
-                (SELECT COUNT(*) FROM visitor_visits WHERE status = 'pending') as pending_approvals,
-                (SELECT COUNT(*) FROM visitor_visits WHERE status = 'accepted' AND out_time IS NULL AND DATE(in_time) = CURDATE()) as active_visitors
+                (SELECT COUNT(*) FROM visitors WHERE DATE(check_in_time) = CURDATE()) as today_visitors,
+                ((SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURDATE()) + 
+                 (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURDATE())) as today_staff_logs,
+                (SELECT COUNT(*) FROM visitors WHERE status = 'pending') as pending_approvals,
+                (SELECT COUNT(*) FROM visitors WHERE status = 'accepted' AND check_out_time IS NULL AND DATE(check_in_time) = CURDATE()) as active_visitors
         `;
 
         const [todayStats] = await promisePool.execute(todayStatsQuery);
@@ -160,8 +207,9 @@ router.get('/stats', async (req, res) => {
         // Monthly statistics
         const monthlyStatsQuery = `
             SELECT 
-                (SELECT COUNT(*) FROM visitor_visits WHERE MONTH(in_time) = MONTH(CURDATE()) AND YEAR(in_time) = YEAR(CURDATE())) as month_visitors,
-                (SELECT COUNT(*) FROM staff_logs WHERE MONTH(created_at) = MONTH(CURDATE()) AND YEAR(created_at) = YEAR(CURDATE())) as month_staff_logs
+                (SELECT COUNT(*) FROM visitors WHERE MONTH(check_in_time) = MONTH(CURDATE()) AND YEAR(check_in_time) = YEAR(CURDATE())) as month_visitors,
+                ((SELECT COUNT(*) FROM staff_entry_logs WHERE MONTH(entry_time) = MONTH(CURDATE()) AND YEAR(entry_time) = YEAR(CURDATE())) + 
+                 (SELECT COUNT(*) FROM staff_exit_logs WHERE MONTH(exit_time) = MONTH(CURDATE()) AND YEAR(exit_time) = YEAR(CURDATE()))) as month_staff_logs
         `;
 
         const [monthlyStats] = await promisePool.execute(monthlyStatsQuery);
@@ -190,14 +238,14 @@ router.get('/daily-summary', async (req, res) => {
     try {
         const visitorCountQuery = `
             SELECT COUNT(*) as count
-            FROM visitor_visits
-            WHERE DATE(in_time) = CURDATE()
+            FROM visitors
+            WHERE DATE(check_in_time) = CURDATE()
         `;
 
         const staffLogCountQuery = `
-            SELECT COUNT(*) as count
-            FROM staff_logs
-            WHERE DATE(created_at) = CURDATE()
+            SELECT 
+                ((SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURDATE()) + 
+                 (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURDATE())) as count
         `;
 
         const [visitorCount] = await promisePool.execute(visitorCountQuery);

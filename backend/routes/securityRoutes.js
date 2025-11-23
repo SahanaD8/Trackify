@@ -10,11 +10,10 @@ const { verifyToken, checkRole } = require('../middleware/auth');
 router.get('/visitor-visits', async (req, res) => {
     try {
         const query = `
-            SELECT vv.*, v.name, v.phone_number, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE DATE(vv.in_time) = CURDATE()
-            ORDER BY vv.in_time DESC
+            SELECT *
+            FROM visitors
+            WHERE DATE(check_in_time) = CURDATE()
+            ORDER BY check_in_time DESC
         `;
 
         const [rows] = await promisePool.execute(query);
@@ -39,11 +38,37 @@ router.get('/visitor-visits', async (req, res) => {
 router.get('/staff-logs', async (req, res) => {
     try {
         const query = `
-            SELECT sl.*, s.name, s.phone_number, s.department
-            FROM staff_logs sl
-            JOIN staff s ON sl.staff_id = s.staff_id
-            WHERE DATE(sl.created_at) = CURDATE()
-            ORDER BY sl.created_at DESC
+            SELECT 
+                'entry' as log_type,
+                sel.id,
+                sel.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                sel.purpose,
+                sel.entry_time as in_time,
+                NULL as out_time
+            FROM staff_entry_logs sel
+            JOIN staff s ON sel.staff_id = s.id
+            WHERE DATE(sel.entry_time) = CURDATE()
+            
+            UNION ALL
+            
+            SELECT 
+                'exit' as log_type,
+                sxl.id,
+                sxl.staff_id,
+                s.name,
+                s.phone_number,
+                s.department,
+                NULL as purpose,
+                NULL as in_time,
+                sxl.exit_time as out_time
+            FROM staff_exit_logs sxl
+            JOIN staff s ON sxl.staff_id = s.id
+            WHERE DATE(sxl.exit_time) = CURDATE()
+            
+            ORDER BY COALESCE(in_time, out_time) DESC
         `;
 
         const [rows] = await promisePool.execute(query);
@@ -73,9 +98,9 @@ router.get('/stats', async (req, res) => {
                 COUNT(*) as total_visitors,
                 SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted,
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
-                SUM(CASE WHEN out_time IS NULL AND status = 'accepted' THEN 1 ELSE 0 END) as currently_inside
-            FROM visitor_visits
-            WHERE DATE(in_time) = CURDATE()
+                SUM(CASE WHEN check_out_time IS NULL AND status = 'accepted' THEN 1 ELSE 0 END) as currently_inside
+            FROM visitors
+            WHERE DATE(check_in_time) = CURDATE()
         `;
 
         const [visitorStats] = await promisePool.execute(visitorStatsQuery);
@@ -83,11 +108,8 @@ router.get('/stats', async (req, res) => {
         // Get staff stats
         const staffStatsQuery = `
             SELECT 
-                COUNT(DISTINCT staff_id) as total_staff_movements,
-                SUM(CASE WHEN log_type = 'out' THEN 1 ELSE 0 END) as staff_out,
-                SUM(CASE WHEN log_type = 'in' THEN 1 ELSE 0 END) as staff_in
-            FROM staff_logs
-            WHERE DATE(created_at) = CURDATE()
+                (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURDATE()) as staff_out,
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURDATE()) as staff_in
         `;
 
         const [staffStats] = await promisePool.execute(staffStatsQuery);
@@ -115,13 +137,12 @@ router.get('/stats', async (req, res) => {
 router.get('/active-visitors', async (req, res) => {
     try {
         const query = `
-            SELECT vv.*, v.name, v.phone_number, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE vv.status = 'accepted' 
-            AND vv.out_time IS NULL
-            AND DATE(vv.in_time) = CURDATE()
-            ORDER BY vv.in_time DESC
+            SELECT *
+            FROM visitors
+            WHERE status = 'accepted' 
+            AND check_out_time IS NULL
+            AND DATE(check_in_time) = CURDATE()
+            ORDER BY check_in_time DESC
         `;
 
         const [rows] = await promisePool.execute(query);

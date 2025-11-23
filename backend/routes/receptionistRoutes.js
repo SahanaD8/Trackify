@@ -11,11 +11,10 @@ const emailService = require('../utils/emailService');
 router.get('/pending-visits', async (req, res) => {
     try {
         const query = `
-            SELECT vv.*, v.name, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE vv.status = 'pending'
-            ORDER BY vv.created_at DESC
+            SELECT *
+            FROM visitors
+            WHERE status = 'pending'
+            ORDER BY created_at DESC
         `;
 
         const [rows] = await promisePool.execute(query);
@@ -50,10 +49,9 @@ router.post('/process-visit', async (req, res) => {
 
         // Get visit details with visitor email
         const visitQuery = `
-            SELECT vv.*, v.name, v.phone_number, v.email
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            WHERE vv.id = ?
+            SELECT *
+            FROM visitors
+            WHERE id = ?
         `;
 
         const [visitRows] = await promisePool.execute(visitQuery, [visitId]);
@@ -70,17 +68,15 @@ router.post('/process-visit', async (req, res) => {
 
         // Update visit status
         const updateQuery = `
-            UPDATE visitor_visits
-            SET status = ?, receptionist_id = ?, approved_at = NOW()
+            UPDATE visitors
+            SET status = ?, approved_at = NOW()
             WHERE id = ?
         `;
 
-        await promisePool.execute(updateQuery, [status, receptionistId, visitId]);
+        await promisePool.execute(updateQuery, [status, visitId]);
 
-        // Get receptionist name
-        const recQuery = 'SELECT name FROM receptionist WHERE id = ?';
-        const [recRows] = await promisePool.execute(recQuery, [receptionistId]);
-        const receptionistName = recRows.length > 0 ? recRows[0].name : 'Receptionist';
+        // Use default receptionist name
+        const receptionistName = 'Receptionist';
 
         // Send email notification to visitor
         if (visit.email) {
@@ -105,7 +101,7 @@ router.post('/process-visit', async (req, res) => {
         // If accepted and visitor wants to meet staff, send notification to staff
         if (status === 'accepted' && visit.whom_to_meet) {
             // Try to find staff email/phone if whom_to_meet is a staff member
-            const staffQuery = 'SELECT name, phone_number, email FROM staff WHERE name LIKE ? OR staff_id = ?';
+            const staffQuery = 'SELECT name, phone_number, email FROM staff WHERE name LIKE ? OR id = ?';
             const [staffRows] = await promisePool.execute(staffQuery, [
                 `%${visit.whom_to_meet}%`,
                 visit.whom_to_meet
@@ -149,10 +145,9 @@ router.post('/process-visit', async (req, res) => {
 router.get('/all-visits', async (req, res) => {
     try {
         const query = `
-            SELECT vv.*, v.name, v.phone_number, v.place
-            FROM visitor_visits vv
-            JOIN visitors v ON vv.visitor_id = v.id
-            ORDER BY vv.created_at DESC
+            SELECT *
+            FROM visitors
+            ORDER BY created_at DESC
             LIMIT 100
         `;
 
@@ -183,7 +178,7 @@ router.get('/stats', async (req, res) => {
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted,
                 SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
-            FROM visitor_visits
+            FROM visitors
             WHERE DATE(created_at) = CURDATE()
         `;
 
