@@ -1,5 +1,8 @@
 // API Configuration
-const API_BASE_URL = 'https://trackify-deploy.onrender.com';
+// This will automatically use the correct URL based on environment
+const API_BASE_URL = window.location.hostname === 'localhost' 
+    ? 'http://localhost:3001' 
+    : 'https://trackify-deploy.onrender.com';
 
 // API Endpoints
 const API_ENDPOINTS = {

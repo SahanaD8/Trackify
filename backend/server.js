@@ -52,7 +52,7 @@ app.get('/', (req, res) => {
 
 // QR Code scan routes
 app.get('/scan', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public/scan.html'));
+    res.sendFile(path.join(__dirname, '../public/qr-scan.html'));
 });
 
 app.get('/qr-scan.html', (req, res) => {
