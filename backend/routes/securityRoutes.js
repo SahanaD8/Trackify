@@ -10,7 +10,11 @@ const { verifyToken, checkRole } = require('../middleware/auth');
 router.get('/visitor-visits', async (req, res) => {
     try {
         const query = `
-            SELECT *
+            SELECT 
+                id, name, phone_number, purpose, whom_to_meet, 
+                check_in_time as in_time, 
+                check_out_time as out_time, 
+                status, created_at
             FROM visitors
             WHERE DATE(check_in_time) = CURRENT_DATE
             ORDER BY check_in_time DESC
@@ -137,7 +141,11 @@ router.get('/stats', async (req, res) => {
 router.get('/active-visitors', async (req, res) => {
     try {
         const query = `
-            SELECT *
+            SELECT 
+                id, name, phone_number, purpose, whom_to_meet,
+                check_in_time as in_time,
+                check_out_time as out_time,
+                status, created_at
             FROM visitors
             WHERE status = 'accepted' 
             AND check_out_time IS NULL

@@ -14,7 +14,12 @@ router.get('/daily-report', async (req, res) => {
 
         // Get visitor visits for the day
         const visitorQuery = `
-            SELECT *
+            SELECT 
+                id, name, phone_number, email, purpose, whom_to_meet,
+                check_in_time as in_time,
+                check_out_time as out_time,
+                status, created_at,
+                email as place
             FROM visitors
             WHERE DATE(check_in_time) = ?
             ORDER BY check_in_time ASC
@@ -31,7 +36,7 @@ router.get('/daily-report', async (req, res) => {
                 s.name,
                 s.phone_number,
                 s.department,
-                sel.purpose,
+                NULL as purpose,
                 sel.entry_time as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
@@ -108,7 +113,12 @@ router.get('/report-range', async (req, res) => {
 
         // Get visitor visits for the date range
         const visitorQuery = `
-            SELECT *
+            SELECT 
+                id, name, phone_number, email, purpose, whom_to_meet,
+                check_in_time as in_time,
+                check_out_time as out_time,
+                status, created_at,
+                email as place
             FROM visitors
             WHERE DATE(check_in_time) BETWEEN ? AND ?
             ORDER BY check_in_time ASC
@@ -125,7 +135,7 @@ router.get('/report-range', async (req, res) => {
                 s.name,
                 s.phone_number,
                 s.department,
-                sel.purpose,
+                NULL as purpose,
                 sel.entry_time as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
