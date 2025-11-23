@@ -12,7 +12,7 @@ router.get('/visitor-visits', async (req, res) => {
         const query = `
             SELECT *
             FROM visitors
-            WHERE DATE(check_in_time) = CURDATE()
+            WHERE DATE(check_in_time) = CURRENT_DATE
             ORDER BY check_in_time DESC
         `;
 
@@ -45,12 +45,12 @@ router.get('/staff-logs', async (req, res) => {
                 s.name,
                 s.phone_number,
                 s.department,
-                sel.purpose,
+                NULL as purpose,
                 sel.entry_time as in_time,
                 NULL as out_time
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.entry_time) = CURDATE()
+            WHERE DATE(sel.entry_time) = CURRENT_DATE
             
             UNION ALL
             
@@ -61,12 +61,12 @@ router.get('/staff-logs', async (req, res) => {
                 s.name,
                 s.phone_number,
                 s.department,
-                NULL as purpose,
+                sxl.purpose,
                 NULL as in_time,
                 sxl.exit_time as out_time
             FROM staff_exit_logs sxl
             JOIN staff s ON sxl.staff_id = s.id
-            WHERE DATE(sxl.exit_time) = CURDATE()
+            WHERE DATE(sxl.exit_time) = CURRENT_DATE
             
             ORDER BY COALESCE(in_time, out_time) DESC
         `;
@@ -100,7 +100,7 @@ router.get('/stats', async (req, res) => {
                 SUM(CASE WHEN status = 'pending' THEN 1 ELSE 0 END) as pending,
                 SUM(CASE WHEN check_out_time IS NULL AND status = 'accepted' THEN 1 ELSE 0 END) as currently_inside
             FROM visitors
-            WHERE DATE(check_in_time) = CURDATE()
+            WHERE DATE(check_in_time) = CURRENT_DATE
         `;
 
         const [visitorStats] = await promisePool.execute(visitorStatsQuery);
@@ -108,8 +108,8 @@ router.get('/stats', async (req, res) => {
         // Get staff stats
         const staffStatsQuery = `
             SELECT 
-                (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURDATE()) as staff_out,
-                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURDATE()) as staff_in
+                (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURRENT_DATE) as staff_out,
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURRENT_DATE) as staff_in
         `;
 
         const [staffStats] = await promisePool.execute(staffStatsQuery);
@@ -141,7 +141,7 @@ router.get('/active-visitors', async (req, res) => {
             FROM visitors
             WHERE status = 'accepted' 
             AND check_out_time IS NULL
-            AND DATE(check_in_time) = CURDATE()
+            AND DATE(check_in_time) = CURRENT_DATE
             ORDER BY check_in_time DESC
         `;
 

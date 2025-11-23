@@ -179,7 +179,7 @@ router.get('/stats', async (req, res) => {
                 SUM(CASE WHEN status = 'accepted' THEN 1 ELSE 0 END) as accepted,
                 SUM(CASE WHEN status = 'rejected' THEN 1 ELSE 0 END) as rejected
             FROM visitors
-            WHERE DATE(created_at) = CURDATE()
+            WHERE DATE(created_at) = CURRENT_DATE
         `;
 
         const [statsRows] = await promisePool.execute(statsQuery);
