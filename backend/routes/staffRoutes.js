@@ -336,51 +336,25 @@ router.post('/in', async (req, res) => {
         }
 
         const staff = staffRows[0];
-        const inTime = new Date();
+        const entryTime = new Date();
 
-        // Find the most recent OUT log for this staff
-        const logQuery = `
-            SELECT * FROM staff_logs 
-            WHERE staff_id = ? AND log_type = 'out' AND in_time IS NULL
-            ORDER BY out_time DESC 
-            LIMIT 1
+        // Insert new entry log
+        const insertQuery = `
+            INSERT INTO staff_entry_logs (staff_id, entry_time)
+            VALUES (?, ?)
         `;
-        const [logRows] = await promisePool.execute(logQuery, [staff.staff_id]);
+        const [result] = await promisePool.execute(insertQuery, [staff.id, entryTime]);
 
-        if (logRows.length > 0) {
-            // Update existing log with in_time
-            const updateQuery = 'UPDATE staff_logs SET in_time = ? WHERE id = ?';
-            await promisePool.execute(updateQuery, [inTime, logRows[0].id]);
-
-            res.json({
-                success: true,
-                message: 'Entry recorded successfully',
-                log: {
-                    id: logRows[0].id,
-                    staffId: staff.staff_id,
-                    staffName: staff.name,
-                    inTime
-                }
-            });
-        } else {
-            // No previous OUT log, create new IN log
-            const insertQuery = `
-                INSERT INTO staff_logs (staff_id, log_type, in_time)
-                VALUES (?, 'in', ?)
-            `;
-            const [result] = await promisePool.execute(insertQuery, [staff.staff_id, inTime]);
-
-            res.json({
-                success: true,
-                message: 'Entry recorded successfully',
-                log: {
-                    id: result.insertId,
-                    staffId: staff.staff_id,
-                    staffName: staff.name,
-                    inTime
-                }
-            });
-        }
+        res.json({
+            success: true,
+            message: 'Entry recorded successfully',
+            log: {
+                id: result.insertId,
+                staffId: staff.id,
+                staffName: staff.name,
+                entryTime
+            }
+        });
     } catch (error) {
         console.error('Error recording staff entry:', error);
         res.status(500).json({
