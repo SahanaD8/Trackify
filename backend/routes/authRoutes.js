@@ -77,19 +77,13 @@ router.post('/login', async (req, res) => {
 
         const user = rows[0];
 
-        // Verify password
-        const isValidPassword = await bcrypt.compare(password, user.password_hash);
-        
-        if (!isValidPassword) {
+        // Verify password (plain text comparison for now)
+        if (password !== user.password) {
             return res.status(401).json({
                 success: false,
                 message: 'Invalid credentials'
             });
         }
-
-        // Update login status
-        const updateQuery = `UPDATE ${userType} SET is_logged_in = TRUE, last_login = NOW() WHERE id = ?`;
-        await promisePool.execute(updateQuery, [user.id]);
 
         // Generate JWT token
         const token = jwt.sign(
