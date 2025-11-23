@@ -79,10 +79,15 @@ app.use((req, res) => {
 
 // Start server - Listen on all network interfaces (0.0.0.0)
 app.listen(PORT, '0.0.0.0', () => {
+    // Use APP_URL from env, RENDER_EXTERNAL_URL for Render, or fallback to localhost
+    const baseURL = process.env.APP_URL || process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+    const qrCodeURL = `${baseURL}/scan`;
+    
     console.log(`🚀 TRACKIFY Server running on port ${PORT}`);
-    console.log(`📱 QR Code URL: http://localhost:${PORT}/scan`);
+    console.log(`📱 QR Code URL: ${qrCodeURL}`);
     console.log(`🌐 Environment: ${process.env.NODE_ENV || 'development'}`);
     console.log(`📡 Network Access: Server accessible on local network`);
+    console.log(`🔗 Base URL: ${baseURL}`);
 });
 
 module.exports = app;

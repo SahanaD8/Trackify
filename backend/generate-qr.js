@@ -1,8 +1,10 @@
 const QRCode = require('qrcode');
 const path = require('path');
 
-// Your ngrok URL - UPDATE THIS WHEN NGROK URL CHANGES
-const websiteURL = 'https://feal-genny-caecal.ngrok-free.dev/qr-scan.html';
+// Use Render URL for production, localhost for development
+const websiteURL = process.env.RENDER_EXTERNAL_URL 
+    ? `${process.env.RENDER_EXTERNAL_URL}/scan`
+    : 'http://localhost:10000/scan';
 const outputPath = path.join(__dirname, '../public/qr-codes/trackify-qr-code.png');
 
 QRCode.toFile(outputPath, websiteURL, {
