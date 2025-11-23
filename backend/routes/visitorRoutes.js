@@ -12,19 +12,14 @@ router.get('/check/:phoneNumber', async (req, res) => {
     try {
         const { phoneNumber } = req.params;
 
-        const query = 'SELECT * FROM visitors WHERE phone_number = ?';
+        const query = 'SELECT * FROM visitors WHERE phone = ?';
         const [rows] = await promisePool.execute(query, [phoneNumber]);
 
         let hasActiveVisit = false;
         if (rows.length > 0) {
             // Check if visitor has an active visit (checked in but not checked out)
-            const visitQuery = `
-                SELECT * FROM visitor_visits 
-                WHERE visitor_id = ? AND status = 'accepted' AND out_time IS NULL
-                ORDER BY in_time DESC LIMIT 1
-            `;
-            const [visitRows] = await promisePool.execute(visitQuery, [rows[0].id]);
-            hasActiveVisit = visitRows.length > 0;
+            const visitor = rows[0];
+            hasActiveVisit = visitor.status === 'accepted' && visitor.check_out_time === null;
         }
 
         res.json({
@@ -124,7 +119,7 @@ router.post('/check-in', async (req, res) => {
         }
 
         // Get visitor ID
-        const visitorQuery = 'SELECT * FROM visitors WHERE phone_number = ?';
+        const visitorQuery = 'SELECT * FROM visitors WHERE phone = ?';
         const [visitorRows] = await promisePool.execute(visitorQuery, [phoneNumber]);
 
         if (visitorRows.length === 0) {
@@ -135,31 +130,31 @@ router.post('/check-in', async (req, res) => {
         }
 
         const visitor = visitorRows[0];
-        const inTime = new Date();
+        const checkInTime = new Date();
 
-        // Insert visit entry
-        const insertQuery = `
-            INSERT INTO visitor_visits (visitor_id, phone_number, purpose, whom_to_meet, in_time, status)
-            VALUES (?, ?, ?, ?, ?, 'pending')
+        // Update visitor record with check-in details
+        const updateQuery = `
+            UPDATE visitors 
+            SET purpose = ?, whom_to_meet = ?, check_in_time = ?, status = 'pending'
+            WHERE id = ?
         `;
         
-        const [result] = await promisePool.execute(insertQuery, [
-            visitor.id,
-            phoneNumber,
+        await promisePool.execute(updateQuery, [
             purpose,
             whomToMeet,
-            inTime
+            checkInTime,
+            visitor.id
         ]);
 
         res.json({
             success: true,
             message: 'Visit request submitted. Waiting for receptionist approval.',
             visit: {
-                id: result.insertId,
+                id: visitor.id,
                 visitorName: visitor.name,
                 purpose,
                 whomToMeet,
-                inTime,
+                checkInTime,
                 status: 'pending'
             }
         });

@@ -279,25 +279,43 @@ router.post('/out', async (req, res) => {
         }
 
         const staff = staffRows[0];
-        const outTime = new Date();
+        const exitTime = new Date();
 
-        // Insert staff log
-        const insertQuery = `
-            INSERT INTO staff_logs (staff_id, purpose, out_time, log_type)
-            VALUES (?, ?, ?, 'out')
+        // Check if there's an active entry without exit
+        const checkQuery = `
+            SELECT * FROM staff_entry_logs 
+            WHERE staff_id = ? AND exit_time IS NULL
+            ORDER BY entry_time DESC
+            LIMIT 1
         `;
+        const [entryRows] = await promisePool.execute(checkQuery, [staff.id]);
 
-        const [result] = await promisePool.execute(insertQuery, [staff.staff_id, purpose, outTime]);
+        if (entryRows.length > 0) {
+            // Update existing entry with exit time
+            const updateQuery = `
+                UPDATE staff_entry_logs 
+                SET exit_time = ? 
+                WHERE id = ?
+            `;
+            await promisePool.execute(updateQuery, [exitTime, entryRows[0].id]);
+        }
+
+        // Also record in exit logs table
+        const insertQuery = `
+            INSERT INTO staff_exit_logs (staff_id, exit_time, purpose)
+            VALUES (?, ?, ?)
+        `;
+        const [result] = await promisePool.execute(insertQuery, [staff.id, exitTime, purpose]);
 
         res.json({
             success: true,
             message: 'Exit recorded successfully',
             log: {
                 id: result.insertId,
-                staffId: staff.staff_id,
+                staffId: staff.id,
                 staffName: staff.name,
                 purpose,
-                outTime
+                exitTime
             }
         });
     } catch (error) {
