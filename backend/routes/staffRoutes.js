@@ -49,24 +49,22 @@ router.get('/status/:phoneNumber', async (req, res) => {
 
         const staff = staffRows[0];
 
-        // Get the most recent log for this staff
-        const logQuery = `
-            SELECT * FROM staff_logs 
+        // Get the most recent entry log for this staff
+        const entryLogQuery = `
+            SELECT * FROM staff_entry_logs 
             WHERE staff_id = ? 
-            ORDER BY created_at DESC, id DESC
+            ORDER BY entry_time DESC
             LIMIT 1
         `;
-        const [logRows] = await promisePool.execute(logQuery, [staff.staff_id]);
+        const [entryRows] = await promisePool.execute(entryLogQuery, [staff.id]);
 
-        let isInside = true; // Default: assume staff is inside (at start of day)
+        let isInside = false; // Default: assume staff is outside
         
-        if (logRows.length > 0) {
-            const lastLog = logRows[0];
-            
-            // If last log is 'out' and in_time is NULL, staff is outside
-            // If last log is 'in' or has in_time filled, staff is inside
-            if (lastLog.log_type === 'out' && lastLog.in_time === null) {
-                isInside = false;
+        if (entryRows.length > 0) {
+            const lastEntry = entryRows[0];
+            // If last entry has no exit_time, staff is inside
+            if (!lastEntry.exit_time) {
+                isInside = true;
             }
         }
 
@@ -74,9 +72,11 @@ router.get('/status/:phoneNumber', async (req, res) => {
             success: true,
             isInside,
             staff: {
-                staff_id: staff.staff_id,
+                id: staff.id,
                 name: staff.name,
-                phone_number: staff.phone_number
+                phone_number: staff.phone_number,
+                email: staff.email,
+                department: staff.department
             }
         });
     } catch (error) {
