@@ -112,14 +112,14 @@ async function showStaffSection(staffData) {
             document.getElementById('staffSection').style.display = 'block';
             
             if (statusData.isInside) {
-                // Staff is inside - show CHECKOUT form only
+                // Staff is inside - show EXIT form (Going Out)
                 document.getElementById('staffOutForm').style.display = 'block';
                 document.getElementById('staffInForm').style.display = 'none';
-                showMessage(`Welcome, ${staffData.name}! You're currently inside. Please fill checkout details.`, 'success');
+                showMessage(`Welcome, ${staffData.name}! You're currently inside. Please fill exit details.`, 'success');
             } else {
-                // Staff is outside - show CHECKIN form only
-                document.getElementById('staffOutForm').style.display = 'none';
+                // Staff is outside - show ENTRY form (Coming In)
                 document.getElementById('staffInForm').style.display = 'block';
+                document.getElementById('staffOutForm').style.display = 'none';
                 showMessage(`Welcome back, ${staffData.name}! Click below to check in.`, 'success');
             }
         } else {
