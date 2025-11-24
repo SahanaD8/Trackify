@@ -45,7 +45,8 @@ router.get('/daily-report', async (req, res) => {
                 COALESCE(sel.exit_time, sel.entry_time) as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.exit_time) = ? OR DATE(sel.entry_time) = ?
+            WHERE (sel.exit_time IS NOT NULL AND DATE(sel.exit_time) = ?) 
+               OR DATE(sel.entry_time) = ?
             ORDER BY created_at ASC
         `;
 
@@ -133,7 +134,8 @@ router.get('/report-range', async (req, res) => {
                 COALESCE(sel.exit_time, sel.entry_time) as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.exit_time) BETWEEN ? AND ? OR DATE(sel.entry_time) BETWEEN ? AND ?
+            WHERE (sel.exit_time IS NOT NULL AND DATE(sel.exit_time) BETWEEN ? AND ?) 
+               OR DATE(sel.entry_time) BETWEEN ? AND ?
             ORDER BY created_at ASC
         `;
 
@@ -184,7 +186,7 @@ router.get('/stats', async (req, res) => {
         const todayStatsQuery = `
             SELECT 
                 (SELECT COUNT(*) FROM visitors WHERE DATE(check_in_time) = CURRENT_DATE) as today_visitors,
-                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(exit_time) = CURRENT_DATE OR DATE(entry_time) = CURRENT_DATE) as today_staff_logs,
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE (exit_time IS NOT NULL AND DATE(exit_time) = CURRENT_DATE) OR DATE(entry_time) = CURRENT_DATE) as today_staff_logs,
                 (SELECT COUNT(*) FROM visitors WHERE status = 'pending') as pending_approvals,
                 (SELECT COUNT(*) FROM visitors WHERE status = 'accepted' AND check_out_time IS NULL AND DATE(check_in_time) = CURRENT_DATE) as active_visitors
         `;
@@ -195,7 +197,7 @@ router.get('/stats', async (req, res) => {
         const monthlyStatsQuery = `
             SELECT 
                 (SELECT COUNT(*) FROM visitors WHERE EXTRACT(MONTH FROM check_in_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM check_in_time) = EXTRACT(YEAR FROM CURRENT_DATE)) as month_visitors,
-                (SELECT COUNT(*) FROM staff_entry_logs WHERE (EXTRACT(MONTH FROM exit_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM exit_time) = EXTRACT(YEAR FROM CURRENT_DATE)) OR (EXTRACT(MONTH FROM entry_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM entry_time) = EXTRACT(YEAR FROM CURRENT_DATE))) as month_staff_logs
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE (exit_time IS NOT NULL AND EXTRACT(MONTH FROM exit_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM exit_time) = EXTRACT(YEAR FROM CURRENT_DATE)) OR (EXTRACT(MONTH FROM entry_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM entry_time) = EXTRACT(YEAR FROM CURRENT_DATE))) as month_staff_logs
         `;
 
         const [monthlyStats] = await promisePool.execute(monthlyStatsQuery);
@@ -231,7 +233,8 @@ router.get('/daily-summary', async (req, res) => {
         const staffLogCountQuery = `
             SELECT COUNT(*) as count
             FROM staff_entry_logs 
-            WHERE DATE(exit_time) = CURRENT_DATE OR DATE(entry_time) = CURRENT_DATE
+            WHERE (exit_time IS NOT NULL AND DATE(exit_time) = CURRENT_DATE) 
+               OR DATE(entry_time) = CURRENT_DATE
         `;
 
         const [visitorCount] = await promisePool.execute(visitorCountQuery);
