@@ -290,9 +290,10 @@ router.post('/out', async (req, res) => {
         const exitTime = new Date();
 
         // Create NEW row with exit_time and purpose (staff going OUT)
+        // Explicitly set entry_time to NULL to prevent any default timestamp
         const insertQuery = `
-            INSERT INTO staff_entry_logs (staff_id, exit_time, purpose)
-            VALUES (?, ?, ?)
+            INSERT INTO staff_entry_logs (staff_id, exit_time, entry_time, purpose)
+            VALUES (?, ?, NULL, ?)
         `;
         const [result] = await promisePool.execute(insertQuery, [staff.id, exitTime, purpose]);
 
