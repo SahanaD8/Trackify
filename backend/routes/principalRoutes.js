@@ -30,9 +30,9 @@ router.get('/daily-report', async (req, res) => {
         const staffQuery = `
             SELECT 
                 CASE 
-                    WHEN sel.exit_time IS NOT NULL THEN 'complete'
-                    WHEN sel.exit_time IS NULL THEN 'exit'
-                    ELSE 'entry'
+                    WHEN sel.entry_time IS NOT NULL AND sel.exit_time IS NOT NULL THEN 'complete'
+                    WHEN sel.entry_time IS NULL AND sel.exit_time IS NOT NULL THEN 'out'
+                    ELSE 'pending'
                 END as log_type,
                 sel.id,
                 sel.staff_id,
@@ -42,15 +42,14 @@ router.get('/daily-report', async (req, res) => {
                 sel.purpose,
                 sel.entry_time as in_time,
                 sel.exit_time as out_time,
-                COALESCE(sel.exit_time, sel.entry_time) as created_at
+                sel.exit_time as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE (sel.exit_time IS NOT NULL AND DATE(sel.exit_time) = ?) 
-               OR DATE(sel.entry_time) = ?
+            WHERE sel.exit_time IS NOT NULL AND DATE(sel.exit_time) = ?
             ORDER BY created_at ASC
         `;
 
-        const [staffRows] = await promisePool.execute(staffQuery, [reportDate, reportDate]);
+        const [staffRows] = await promisePool.execute(staffQuery, [reportDate]);
 
         // Number the records
         const numberedVisitors = visitorRows.map((visitor, index) => ({

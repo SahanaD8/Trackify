@@ -58,13 +58,14 @@ router.get('/status/:phoneNumber', async (req, res) => {
         `;
         const [entryRows] = await promisePool.execute(entryLogQuery, [staff.id]);
 
-        let isInside = false; // Default: assume staff is outside
+        let isInside = true; // Default: assume staff is inside campus
         
         if (entryRows.length > 0) {
             const lastEntry = entryRows[0];
-            // If last entry has no exit_time, staff is inside
-            if (!lastEntry.exit_time) {
-                isInside = true;
+            // If last record has exit_time but no entry_time, staff is outside
+            // If last record has both exit_time and entry_time, staff is inside
+            if (lastEntry.exit_time && !lastEntry.entry_time) {
+                isInside = false;
             }
         }
 
@@ -281,30 +282,18 @@ router.post('/out', async (req, res) => {
         const staff = staffRows[0];
         const exitTime = new Date();
 
-        // Check if there's an active entry without exit
-        const checkQuery = `
-            SELECT * FROM staff_entry_logs 
-            WHERE staff_id = ? AND exit_time IS NULL
-            ORDER BY entry_time DESC
-            LIMIT 1
+        // Create NEW row with exit_time and purpose (staff going OUT)
+        const insertQuery = `
+            INSERT INTO staff_entry_logs (staff_id, exit_time, purpose)
+            VALUES (?, ?, ?)
         `;
-        const [entryRows] = await promisePool.execute(checkQuery, [staff.id]);
-
-        if (entryRows.length > 0) {
-            // Update existing entry with exit time and purpose
-            const updateQuery = `
-                UPDATE staff_entry_logs 
-                SET exit_time = ?, purpose = ? 
-                WHERE id = ?
-            `;
-            await promisePool.execute(updateQuery, [exitTime, purpose, entryRows[0].id]);
-        }
+        const [result] = await promisePool.execute(insertQuery, [staff.id, exitTime, purpose]);
 
         res.json({
             success: true,
             message: 'Exit recorded successfully',
             log: {
-                id: entryRows.length > 0 ? entryRows[0].id : null,
+                id: result.insertId,
                 staffId: staff.id,
                 staffName: staff.name,
                 purpose,
@@ -349,23 +338,41 @@ router.post('/in', async (req, res) => {
         const staff = staffRows[0];
         const entryTime = new Date();
 
-        // Insert new entry log
-        const insertQuery = `
-            INSERT INTO staff_entry_logs (staff_id, entry_time)
-            VALUES (?, ?)
+        // Find the most recent exit record without entry_time (staff was out, now coming in)
+        const checkQuery = `
+            SELECT * FROM staff_entry_logs 
+            WHERE staff_id = ? AND exit_time IS NOT NULL AND entry_time IS NULL
+            ORDER BY exit_time DESC
+            LIMIT 1
         `;
-        const [result] = await promisePool.execute(insertQuery, [staff.id, entryTime]);
+        const [exitRows] = await promisePool.execute(checkQuery, [staff.id]);
 
-        res.json({
-            success: true,
-            message: 'Entry recorded successfully',
-            log: {
-                id: result.insertId,
-                staffId: staff.id,
-                staffName: staff.name,
-                entryTime
-            }
-        });
+        if (exitRows.length > 0) {
+            // Update the existing exit record with entry_time
+            const updateQuery = `
+                UPDATE staff_entry_logs 
+                SET entry_time = ? 
+                WHERE id = ?
+            `;
+            await promisePool.execute(updateQuery, [entryTime, exitRows[0].id]);
+
+            res.json({
+                success: true,
+                message: 'Entry recorded successfully',
+                log: {
+                    id: exitRows[0].id,
+                    staffId: staff.id,
+                    staffName: staff.name,
+                    purpose: exitRows[0].purpose,
+                    entryTime
+                }
+            });
+        } else {
+            return res.status(400).json({
+                success: false,
+                message: 'No exit record found. Please record exit first.'
+            });
+        }
     } catch (error) {
         console.error('Error recording staff entry:', error);
         res.status(500).json({
