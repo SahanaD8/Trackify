@@ -12,7 +12,7 @@ router.get('/check/:phoneNumber', async (req, res) => {
     try {
         const { phoneNumber } = req.params;
 
-        const query = 'SELECT * FROM visitors WHERE phone = ?';
+        const query = 'SELECT * FROM visitors WHERE phone_number = ?';
         const [rows] = await promisePool.execute(query, [phoneNumber]);
 
         let hasActiveVisit = false;
@@ -119,7 +119,7 @@ router.post('/check-in', async (req, res) => {
         }
 
         // Get visitor ID
-        const visitorQuery = 'SELECT * FROM visitors WHERE phone = ?';
+        const visitorQuery = 'SELECT * FROM visitors WHERE phone_number = ?';
         const [visitorRows] = await promisePool.execute(visitorQuery, [phoneNumber]);
 
         if (visitorRows.length === 0) {
