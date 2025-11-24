@@ -15,8 +15,7 @@ router.get('/pending-visits', async (req, res) => {
                 id, name, phone_number, email, purpose, whom_to_meet,
                 check_in_time as in_time,
                 check_out_time as out_time,
-                status, approved_by, created_at,
-                email as place
+                status, approved_by, created_at, place
             FROM visitors
             WHERE status = 'pending'
             ORDER BY created_at DESC
@@ -154,8 +153,7 @@ router.get('/all-visits', async (req, res) => {
                 id, name, phone_number, email, purpose, whom_to_meet,
                 check_in_time as in_time,
                 check_out_time as out_time,
-                status, approved_by, created_at,
-                email as place
+                status, approved_by, created_at, place
             FROM visitors
             ORDER BY created_at DESC
             LIMIT 100

@@ -112,15 +112,15 @@ async function showStaffSection(staffData) {
             document.getElementById('staffSection').style.display = 'block';
             
             if (statusData.isInside) {
-                // Staff is inside - show ENTRY form (Coming In)
-                document.getElementById('staffInForm').style.display = 'block';
-                document.getElementById('staffOutForm').style.display = 'none';
-                showMessage(`Welcome, ${staffData.name}! You're currently inside. Click below to check in.`, 'success');
-            } else {
-                // Staff is outside - show EXIT form (Going Out) FIRST
+                // Staff is inside - show EXIT form (Going Out)
                 document.getElementById('staffOutForm').style.display = 'block';
                 document.getElementById('staffInForm').style.display = 'none';
-                showMessage(`Welcome back, ${staffData.name}! Please fill exit details.`, 'success');
+                showMessage(`Welcome, ${staffData.name}! You're currently inside. Please fill exit details.`, 'success');
+            } else {
+                // Staff is outside - show ENTRY form (Coming In) FIRST
+                document.getElementById('staffInForm').style.display = 'block';
+                document.getElementById('staffOutForm').style.display = 'none';
+                showMessage(`Welcome back, ${staffData.name}! Click below to check in.`, 'success');
             }
         } else {
             throw new Error('Failed to get staff status');

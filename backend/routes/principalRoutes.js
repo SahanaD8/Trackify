@@ -18,8 +18,7 @@ router.get('/daily-report', async (req, res) => {
                 id, name, phone_number, email, purpose, whom_to_meet,
                 check_in_time as in_time,
                 check_out_time as out_time,
-                status, created_at,
-                email as place
+                status, created_at, place
             FROM visitors
             WHERE DATE(check_in_time) = ?
             ORDER BY check_in_time ASC
@@ -117,8 +116,7 @@ router.get('/report-range', async (req, res) => {
                 id, name, phone_number, email, purpose, whom_to_meet,
                 check_in_time as in_time,
                 check_out_time as out_time,
-                status, created_at,
-                email as place
+                status, created_at, place
             FROM visitors
             WHERE DATE(check_in_time) BETWEEN ? AND ?
             ORDER BY check_in_time ASC

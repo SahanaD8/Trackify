@@ -184,16 +184,31 @@ router.post('/check-out', async (req, res) => {
 
         const outTime = new Date();
 
-        // Update the most recent visit
-        const updateQuery = `
-            UPDATE visitors
-            SET check_out_time = ?
+        // Find the most recent visit
+        const findQuery = `
+            SELECT id FROM visitors
             WHERE phone_number = ? AND check_out_time IS NULL AND status = 'accepted'
             ORDER BY check_in_time DESC
             LIMIT 1
         `;
+        
+        const [visits] = await promisePool.execute(findQuery, [phoneNumber]);
+        
+        if (visits.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'No active visit found for check-out'
+            });
+        }
 
-        const [result] = await promisePool.execute(updateQuery, [outTime, phoneNumber]);
+        // Update the visit
+        const updateQuery = `
+            UPDATE visitors
+            SET check_out_time = ?
+            WHERE id = ?
+        `;
+
+        const [result] = await promisePool.execute(updateQuery, [outTime, visits[0].id]);
 
         if (result.affectedRows === 0) {
             return res.status(404).json({
