@@ -15,11 +15,7 @@ async function clearStaffLogs() {
         const result = await client.query('DELETE FROM staff_entry_logs');
         console.log(`✅ Deleted ${result.rowCount} staff entry logs`);
 
-        console.log('\n✅ Database cleared! You can now test with fresh data.');
-        console.log('\nTest the new flow:');
-        console.log('1. Staff scans QR → Goes OUT (records exit_time + purpose)');
-        console.log('2. Staff scans QR → Comes IN (records entry_time in same row)');
-        console.log('3. Check dashboard → Out Time and In Time should be different!');
+        console.log('\n✅ All staff logs cleared successfully!');
 
     } catch (error) {
         console.error('❌ Error:', error.message);
