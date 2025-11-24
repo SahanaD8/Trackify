@@ -43,7 +43,11 @@ router.get('/staff-logs', async (req, res) => {
     try {
         const query = `
             SELECT 
-                'entry' as log_type,
+                CASE 
+                    WHEN sel.exit_time IS NOT NULL THEN 'complete'
+                    WHEN sel.exit_time IS NULL THEN 'exit'
+                    ELSE 'entry'
+                END as log_type,
                 sel.id,
                 sel.staff_id,
                 s.name,
@@ -51,28 +55,11 @@ router.get('/staff-logs', async (req, res) => {
                 s.department,
                 sel.purpose,
                 sel.entry_time as in_time,
-                NULL as out_time
-            FROM staff_entry_logs sel
-            JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.entry_time) = CURRENT_DATE
-            
-            UNION ALL
-            
-            SELECT 
-                'exit' as log_type,
-                sel.id,
-                sel.staff_id,
-                s.name,
-                s.phone_number,
-                s.department,
-                sel.purpose,
-                NULL as in_time,
                 sel.exit_time as out_time
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.exit_time) = CURRENT_DATE AND sel.exit_time IS NOT NULL
-            
-            ORDER BY COALESCE(in_time, out_time) DESC
+            WHERE DATE(sel.exit_time) = CURRENT_DATE OR DATE(sel.entry_time) = CURRENT_DATE
+            ORDER BY COALESCE(sel.exit_time, sel.entry_time) DESC
         `;
 
         const [rows] = await promisePool.execute(query);

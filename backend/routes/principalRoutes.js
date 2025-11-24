@@ -29,33 +29,23 @@ router.get('/daily-report', async (req, res) => {
         // Get staff logs for the day
         const staffQuery = `
             SELECT 
-                'entry' as log_type,
+                CASE 
+                    WHEN sel.exit_time IS NOT NULL THEN 'complete'
+                    WHEN sel.exit_time IS NULL THEN 'exit'
+                    ELSE 'entry'
+                END as log_type,
                 sel.id,
                 sel.staff_id,
                 s.name,
                 s.phone_number,
                 s.department,
                 sel.purpose,
-                sel.entry_time as created_at
+                sel.entry_time as in_time,
+                sel.exit_time as out_time,
+                COALESCE(sel.exit_time, sel.entry_time) as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.entry_time) = ?
-            
-            UNION ALL
-            
-            SELECT 
-                'exit' as log_type,
-                sel.id,
-                sel.staff_id,
-                s.name,
-                s.phone_number,
-                s.department,
-                sel.purpose,
-                sel.exit_time as created_at
-            FROM staff_entry_logs sel
-            JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.exit_time) = ? AND sel.exit_time IS NOT NULL
-            
+            WHERE DATE(sel.exit_time) = ? OR DATE(sel.entry_time) = ?
             ORDER BY created_at ASC
         `;
 
@@ -127,33 +117,23 @@ router.get('/report-range', async (req, res) => {
         // Get staff logs for the date range
         const staffQuery = `
             SELECT 
-                'entry' as log_type,
+                CASE 
+                    WHEN sel.exit_time IS NOT NULL THEN 'complete'
+                    WHEN sel.exit_time IS NULL THEN 'exit'
+                    ELSE 'entry'
+                END as log_type,
                 sel.id,
                 sel.staff_id,
                 s.name,
                 s.phone_number,
                 s.department,
                 sel.purpose,
-                sel.entry_time as created_at
+                sel.entry_time as in_time,
+                sel.exit_time as out_time,
+                COALESCE(sel.exit_time, sel.entry_time) as created_at
             FROM staff_entry_logs sel
             JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.entry_time) BETWEEN ? AND ?
-            
-            UNION ALL
-            
-            SELECT 
-                'exit' as log_type,
-                sel.id,
-                sel.staff_id,
-                s.name,
-                s.phone_number,
-                s.department,
-                sel.purpose,
-                sel.exit_time as created_at
-            FROM staff_entry_logs sel
-            JOIN staff s ON sel.staff_id = s.id
-            WHERE DATE(sel.exit_time) BETWEEN ? AND ? AND sel.exit_time IS NOT NULL
-            
+            WHERE DATE(sel.exit_time) BETWEEN ? AND ? OR DATE(sel.entry_time) BETWEEN ? AND ?
             ORDER BY created_at ASC
         `;
 
@@ -204,8 +184,7 @@ router.get('/stats', async (req, res) => {
         const todayStatsQuery = `
             SELECT 
                 (SELECT COUNT(*) FROM visitors WHERE DATE(check_in_time) = CURRENT_DATE) as today_visitors,
-                ((SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURRENT_DATE) + 
-                 (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(exit_time) = CURRENT_DATE AND exit_time IS NOT NULL)) as today_staff_logs,
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(exit_time) = CURRENT_DATE OR DATE(entry_time) = CURRENT_DATE) as today_staff_logs,
                 (SELECT COUNT(*) FROM visitors WHERE status = 'pending') as pending_approvals,
                 (SELECT COUNT(*) FROM visitors WHERE status = 'accepted' AND check_out_time IS NULL AND DATE(check_in_time) = CURRENT_DATE) as active_visitors
         `;
@@ -216,8 +195,7 @@ router.get('/stats', async (req, res) => {
         const monthlyStatsQuery = `
             SELECT 
                 (SELECT COUNT(*) FROM visitors WHERE EXTRACT(MONTH FROM check_in_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM check_in_time) = EXTRACT(YEAR FROM CURRENT_DATE)) as month_visitors,
-                ((SELECT COUNT(*) FROM staff_entry_logs WHERE EXTRACT(MONTH FROM entry_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM entry_time) = EXTRACT(YEAR FROM CURRENT_DATE)) + 
-                 (SELECT COUNT(*) FROM staff_entry_logs WHERE EXTRACT(MONTH FROM exit_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM exit_time) = EXTRACT(YEAR FROM CURRENT_DATE) AND exit_time IS NOT NULL)) as month_staff_logs
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE (EXTRACT(MONTH FROM exit_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM exit_time) = EXTRACT(YEAR FROM CURRENT_DATE)) OR (EXTRACT(MONTH FROM entry_time) = EXTRACT(MONTH FROM CURRENT_DATE) AND EXTRACT(YEAR FROM entry_time) = EXTRACT(YEAR FROM CURRENT_DATE))) as month_staff_logs
         `;
 
         const [monthlyStats] = await promisePool.execute(monthlyStatsQuery);
@@ -251,9 +229,9 @@ router.get('/daily-summary', async (req, res) => {
         `;
 
         const staffLogCountQuery = `
-            SELECT 
-                ((SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURRENT_DATE) + 
-                 (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(exit_time) = CURRENT_DATE AND exit_time IS NOT NULL)) as count
+            SELECT COUNT(*) as count
+            FROM staff_entry_logs 
+            WHERE DATE(exit_time) = CURRENT_DATE OR DATE(entry_time) = CURRENT_DATE
         `;
 
         const [visitorCount] = await promisePool.execute(visitorCountQuery);
