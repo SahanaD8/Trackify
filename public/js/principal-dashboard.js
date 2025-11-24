@@ -35,12 +35,17 @@ async function loadStats() {
 async function getTodayReport() {
     try {
         const today = new Date().toISOString().split('T')[0];
+        console.log('Fetching today report for date:', today);
         const response = await apiRequest(`${API_ENDPOINTS.dailyReport}?date=${today}`);
 
+        console.log('Report API response:', response);
         if (response.success) {
             displayReport(response.report);
+        } else {
+            showMessage(response.message || 'Failed to generate report', 'error');
         }
     } catch (error) {
+        console.error('Report generation error:', error);
         showMessage(error.message || 'Failed to generate report', 'error');
     }
 }
@@ -61,14 +66,19 @@ async function generateReport() {
     }
 
     try {
+        console.log('Fetching report range:', fromDate, 'to', toDate);
         const response = await apiRequest(
             `${API_ENDPOINTS.reportRange}?fromDate=${fromDate}&toDate=${toDate}`
         );
 
+        console.log('Report range API response:', response);
         if (response.success) {
             displayReport(response.report);
+        } else {
+            showMessage(response.message || 'Failed to generate report', 'error');
         }
     } catch (error) {
+        console.error('Report range generation error:', error);
         showMessage(error.message || 'Failed to generate report', 'error');
     }
 }
