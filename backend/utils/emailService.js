@@ -1,59 +1,30 @@
-// Email Service using Nodemailer
-const nodemailer = require('nodemailer');
+// Email Service using SendGrid
+const sgMail = require('@sendgrid/mail');
 
 class EmailService {
     constructor() {
-        this.transporter = null;
         this.initialized = false;
-        this.initializeTransporter();
+        this.fromEmail = process.env.SENDGRID_FROM_EMAIL || 'noreply@trackify.com';
+        this.initializeSendGrid();
     }
 
-    initializeTransporter() {
+    initializeSendGrid() {
         try {
-            // Check if email credentials are configured
-            if (!process.env.EMAIL_USER || !process.env.EMAIL_PASSWORD) {
-                console.log('📧 Email not configured - Running in DEVELOPMENT MODE');
+            // Check if SendGrid API key is configured
+            if (!process.env.SENDGRID_API_KEY) {
+                console.log('📧 SendGrid not configured - Running in DEVELOPMENT MODE');
                 console.log('   Email notifications will be logged to console instead of being sent');
                 this.initialized = false;
                 return;
             }
 
-            // Create transporter
-            this.transporter = nodemailer.createTransport({
-                host: process.env.EMAIL_HOST || 'smtp.gmail.com',
-                port: parseInt(process.env.EMAIL_PORT) || 587,
-                secure: false, // true for 465, false for other ports
-                connectionTimeout: 10000, // 10 seconds
-                greetingTimeout: 10000, // 10 seconds
-                socketTimeout: 10000, // 10 seconds
-                auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASSWORD
-                }
-            });
-
-            // Verify connection with timeout - run asynchronously without blocking
-            const verifyTimeout = setTimeout(() => {
-                console.log('⚠️ Email service verification timeout - continuing without email');
-                this.initialized = false;
-            }, 10000); // 10 second timeout
-
-            this.transporter.verify((error, success) => {
-                clearTimeout(verifyTimeout);
-                if (error) {
-                    console.error('❌ Email service initialization failed:', error.message);
-                    this.initialized = false;
-                } else {
-                    console.log('✅ Email service initialized successfully');
-                    this.initialized = true;
-                }
-            });
-
-            // Don't wait for verification - continue immediately
-            console.log('📧 Email service initializing in background...');
+            // Set SendGrid API key
+            sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+            this.initialized = true;
+            console.log('✅ SendGrid email service initialized successfully');
 
         } catch (error) {
-            console.error('❌ Email service initialization error:', error.message);
+            console.error('❌ SendGrid initialization error:', error.message);
             this.initialized = false;
         }
     }
@@ -250,18 +221,21 @@ class EmailService {
         }
 
         try {
-            const mailOptions = {
-                from: process.env.EMAIL_FROM || process.env.EMAIL_USER,
+            const msg = {
                 to: to,
+                from: this.fromEmail,
                 subject: subject,
                 html: html
             };
 
-            const info = await this.transporter.sendMail(mailOptions);
+            await sgMail.send(msg);
             console.log('✅ Email sent successfully to:', to);
-            return { success: true, messageId: info.messageId };
+            return { success: true };
         } catch (error) {
             console.error('❌ Email sending failed:', error.message);
+            if (error.response) {
+                console.error('SendGrid Error:', error.response.body);
+            }
             return { success: false, error: error.message };
         }
     }
