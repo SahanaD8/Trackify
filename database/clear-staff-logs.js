@@ -1,8 +1,8 @@
 // Script to clear staff entry logs for fresh testing
 const { Client } = require('pg');
-require('dotenv').config();
 
-const connectionString = process.env.DATABASE_URL;
+// Use your Render PostgreSQL connection string
+const connectionString = 'postgresql://trackify_user:MuZ8ggwdHn6vhcB1PfKPdhUhOXGgs37V@dpg-d4g4qd8gjchc73dpv16g-a.singapore-postgres.render.com/trackify_db_8mte';
 
 async function clearStaffLogs() {
     const client = new Client({ connectionString });

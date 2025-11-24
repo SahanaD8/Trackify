@@ -59,12 +59,22 @@ router.get('/status/:phoneNumber', async (req, res) => {
         `;
         const [incompleteRows] = await promisePool.execute(checkIncompleteQuery, [staff.id]);
 
+        console.log('=== Staff Status Check ===');
+        console.log('Staff ID:', staff.id);
+        console.log('Staff Name:', staff.name);
+        console.log('Incomplete exits found:', incompleteRows.length);
+        if (incompleteRows.length > 0) {
+            console.log('Last exit:', incompleteRows[0]);
+        }
+
         let isInside = true; // Default: assume staff is inside campus
         
         if (incompleteRows.length > 0) {
             // Staff has an exit record without entry - they are OUTSIDE
             isInside = false;
         }
+
+        console.log('isInside status:', isInside);
 
         res.json({
             success: true,
