@@ -291,27 +291,20 @@ router.post('/out', async (req, res) => {
         const [entryRows] = await promisePool.execute(checkQuery, [staff.id]);
 
         if (entryRows.length > 0) {
-            // Update existing entry with exit time
+            // Update existing entry with exit time and purpose
             const updateQuery = `
                 UPDATE staff_entry_logs 
-                SET exit_time = ? 
+                SET exit_time = ?, purpose = ? 
                 WHERE id = ?
             `;
-            await promisePool.execute(updateQuery, [exitTime, entryRows[0].id]);
+            await promisePool.execute(updateQuery, [exitTime, purpose, entryRows[0].id]);
         }
-
-        // Also record in exit logs table
-        const insertQuery = `
-            INSERT INTO staff_exit_logs (staff_id, exit_time, purpose)
-            VALUES (?, ?, ?)
-        `;
-        const [result] = await promisePool.execute(insertQuery, [staff.id, exitTime, purpose]);
 
         res.json({
             success: true,
             message: 'Exit recorded successfully',
             log: {
-                id: result.insertId,
+                id: entryRows.length > 0 ? entryRows[0].id : null,
                 staffId: staff.id,
                 staffName: staff.name,
                 purpose,

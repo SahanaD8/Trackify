@@ -49,7 +49,7 @@ router.get('/staff-logs', async (req, res) => {
                 s.name,
                 s.phone_number,
                 s.department,
-                NULL as purpose,
+                sel.purpose,
                 sel.entry_time as in_time,
                 NULL as out_time
             FROM staff_entry_logs sel
@@ -60,17 +60,17 @@ router.get('/staff-logs', async (req, res) => {
             
             SELECT 
                 'exit' as log_type,
-                sxl.id,
-                sxl.staff_id,
+                sel.id,
+                sel.staff_id,
                 s.name,
                 s.phone_number,
                 s.department,
-                sxl.purpose,
+                sel.purpose,
                 NULL as in_time,
-                sxl.exit_time as out_time
-            FROM staff_exit_logs sxl
-            JOIN staff s ON sxl.staff_id = s.id
-            WHERE DATE(sxl.exit_time) = CURRENT_DATE
+                sel.exit_time as out_time
+            FROM staff_entry_logs sel
+            JOIN staff s ON sel.staff_id = s.id
+            WHERE DATE(sel.exit_time) = CURRENT_DATE AND sel.exit_time IS NOT NULL
             
             ORDER BY COALESCE(in_time, out_time) DESC
         `;
@@ -112,7 +112,7 @@ router.get('/stats', async (req, res) => {
         // Get staff stats
         const staffStatsQuery = `
             SELECT 
-                (SELECT COUNT(*) FROM staff_exit_logs WHERE DATE(exit_time) = CURRENT_DATE) as staff_out,
+                (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(exit_time) = CURRENT_DATE AND exit_time IS NOT NULL) as staff_out,
                 (SELECT COUNT(*) FROM staff_entry_logs WHERE DATE(entry_time) = CURRENT_DATE) as staff_in
         `;
 

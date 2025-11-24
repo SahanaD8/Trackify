@@ -186,10 +186,10 @@ router.post('/check-out', async (req, res) => {
 
         // Update the most recent visit
         const updateQuery = `
-            UPDATE visitor_visits
-            SET out_time = ?
-            WHERE phone_number = ? AND out_time IS NULL AND status = 'accepted'
-            ORDER BY in_time DESC
+            UPDATE visitors
+            SET check_out_time = ?
+            WHERE phone_number = ? AND check_out_time IS NULL AND status = 'accepted'
+            ORDER BY check_in_time DESC
             LIMIT 1
         `;
 
