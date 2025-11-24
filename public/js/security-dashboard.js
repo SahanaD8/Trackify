@@ -88,8 +88,8 @@ async function loadStaffLogs() {
                     <td>${log.name}</td>
                     <td>${log.department}</td>
                     <td>${log.purpose || 'Return'}</td>
-                    <td>${log.in_time ? formatDateTime(log.in_time) : 'N/A'}</td>
                     <td>${log.out_time ? formatDateTime(log.out_time) : 'N/A'}</td>
+                    <td>${log.in_time ? formatDateTime(log.in_time) : 'N/A'}</td>
                     <td>
                         <span class="status-badge status-${log.log_type}">
                             ${log.log_type.toUpperCase()}
