@@ -15,7 +15,7 @@ CREATE TABLE staff (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     email VARCHAR(255) UNIQUE NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
     department VARCHAR(255),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -24,8 +24,9 @@ CREATE TABLE staff (
 CREATE TABLE visitors (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
+    phone_number VARCHAR(20) NOT NULL,
     email VARCHAR(255),
+    place VARCHAR(255),
     purpose TEXT NOT NULL,
     whom_to_meet VARCHAR(255) NOT NULL,
     whom_to_meet_phone VARCHAR(20),
@@ -43,6 +44,7 @@ CREATE TABLE staff_entry_logs (
     staff_id INTEGER NOT NULL,
     entry_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     exit_time TIMESTAMP,
+    purpose TEXT,
     FOREIGN KEY (staff_id) REFERENCES staff(id) ON DELETE CASCADE
 );
 
