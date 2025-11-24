@@ -69,15 +69,18 @@ router.post('/process-visit', async (req, res) => {
 
         const visit = visitRows[0];
         const status = action === 'accept' ? 'accepted' : 'rejected';
+        const now = new Date();
 
-        // Update visit status
-        const updateQuery = `
-            UPDATE visitors
-            SET status = ?, approved_at = NOW()
-            WHERE id = ?
-        `;
+        // Update visit status and set check_in_time ONLY on acceptance
+        const updateQuery = status === 'accepted' 
+            ? `UPDATE visitors SET status = ?, approved_at = ?, check_in_time = ? WHERE id = ?`
+            : `UPDATE visitors SET status = ?, approved_at = ? WHERE id = ?`;
 
-        await promisePool.execute(updateQuery, [status, visitId]);
+        const params = status === 'accepted' 
+            ? [status, now, now, visitId]
+            : [status, now, visitId];
+
+        await promisePool.execute(updateQuery, params);
 
         // Use default receptionist name
         const receptionistName = 'Receptionist';

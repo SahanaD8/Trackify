@@ -130,19 +130,17 @@ router.post('/check-in', async (req, res) => {
         }
 
         const visitor = visitorRows[0];
-        const checkInTime = new Date();
 
-        // Update visitor record with check-in details
+        // Update visitor record with visit details (NO check_in_time yet - only on approval)
         const updateQuery = `
             UPDATE visitors 
-            SET purpose = ?, whom_to_meet = ?, check_in_time = ?, status = 'pending'
+            SET purpose = ?, whom_to_meet = ?, status = 'pending'
             WHERE id = ?
         `;
         
         await promisePool.execute(updateQuery, [
             purpose,
             whomToMeet,
-            checkInTime,
             visitor.id
         ]);
 
@@ -154,7 +152,6 @@ router.post('/check-in', async (req, res) => {
                 visitorName: visitor.name,
                 purpose,
                 whomToMeet,
-                checkInTime,
                 status: 'pending'
             }
         });
