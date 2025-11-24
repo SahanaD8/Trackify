@@ -50,26 +50,20 @@ router.get('/status/:phoneNumber', async (req, res) => {
         const staff = staffRows[0];
 
         // Get the most recent entry log for this staff
-        const entryLogQuery = `
+        // Check if there's an incomplete exit (has exit_time but no entry_time)
+        const checkIncompleteQuery = `
             SELECT * FROM staff_entry_logs 
-            WHERE staff_id = ? 
-            ORDER BY COALESCE(exit_time, entry_time) DESC
+            WHERE staff_id = ? AND exit_time IS NOT NULL AND entry_time IS NULL
+            ORDER BY exit_time DESC
             LIMIT 1
         `;
-        const [entryRows] = await promisePool.execute(entryLogQuery, [staff.id]);
+        const [incompleteRows] = await promisePool.execute(checkIncompleteQuery, [staff.id]);
 
         let isInside = true; // Default: assume staff is inside campus
         
-        if (entryRows.length > 0) {
-            const lastEntry = entryRows[0];
-            // If last record has exit_time but no entry_time, staff is OUTSIDE (went out, hasn't come back)
-            // If last record has both exit_time and entry_time, staff is INSIDE (completed the cycle)
-            // If last record has no exit_time, should not happen in new flow
-            if (lastEntry.exit_time && !lastEntry.entry_time) {
-                isInside = false; // Staff went OUT, hasn't come back IN yet
-            } else if (lastEntry.exit_time && lastEntry.entry_time) {
-                isInside = true; // Staff completed OUT-IN cycle, is back inside
-            }
+        if (incompleteRows.length > 0) {
+            // Staff has an exit record without entry - they are OUTSIDE
+            isInside = false;
         }
 
         res.json({

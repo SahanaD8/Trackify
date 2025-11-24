@@ -45,7 +45,7 @@ router.get('/staff-logs', async (req, res) => {
             SELECT 
                 CASE 
                     WHEN sel.entry_time IS NOT NULL AND sel.exit_time IS NOT NULL THEN 'complete'
-                    WHEN sel.entry_time IS NULL AND sel.exit_time IS NOT NULL THEN 'out'
+                    WHEN sel.entry_time IS NULL AND sel.exit_time IS NOT NULL THEN 'exit'
                     ELSE 'pending'
                 END as log_type,
                 sel.id,

@@ -87,12 +87,12 @@ async function loadStaffLogs() {
                     <td>${log.staff_id}</td>
                     <td>${log.name}</td>
                     <td>${log.department}</td>
-                    <td>${log.purpose || 'Return'}</td>
+                    <td>${log.purpose || 'N/A'}</td>
                     <td>${log.out_time ? formatDateTime(log.out_time) : 'N/A'}</td>
-                    <td>${log.in_time ? formatDateTime(log.in_time) : 'N/A'}</td>
+                    <td>${log.in_time ? formatDateTime(log.in_time) : 'Pending'}</td>
                     <td>
                         <span class="status-badge status-${log.log_type}">
-                            ${log.log_type.toUpperCase()}
+                            ${log.log_type === 'exit' ? 'EXIT' : log.log_type === 'complete' ? 'COMPLETE' : log.log_type.toUpperCase()}
                         </span>
                     </td>
                 </tr>
