@@ -108,10 +108,9 @@ router.post('/process-visit', async (req, res) => {
         // If accepted and visitor wants to meet staff, send notification to staff
         if (status === 'accepted' && visit.whom_to_meet) {
             // Try to find staff email/phone if whom_to_meet is a staff member
-            const staffQuery = 'SELECT name, phone_number, email FROM staff WHERE name LIKE ? OR id = ?';
+            const staffQuery = 'SELECT name, phone_number, email FROM staff WHERE name ILIKE ?';
             const [staffRows] = await promisePool.execute(staffQuery, [
-                `%${visit.whom_to_meet}%`,
-                visit.whom_to_meet
+                `%${visit.whom_to_meet}%`
             ]);
 
             if (staffRows.length > 0) {
