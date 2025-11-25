@@ -16,7 +16,7 @@ router.get('/visitor-visits', async (req, res) => {
                 check_out_time as out_time, 
                 status, created_at
             FROM visitors
-            WHERE DATE(check_in_time) = CURRENT_DATE
+            WHERE status = 'accepted' AND DATE(check_in_time) = CURRENT_DATE
             ORDER BY check_in_time DESC
         `;
 

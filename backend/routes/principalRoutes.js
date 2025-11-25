@@ -20,7 +20,7 @@ router.get('/daily-report', async (req, res) => {
                 check_out_time as out_time,
                 status, created_at, place
             FROM visitors
-            WHERE DATE(check_in_time) = ?
+            WHERE status = 'accepted' AND DATE(check_in_time) = ?
             ORDER BY check_in_time ASC
         `;
 

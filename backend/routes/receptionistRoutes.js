@@ -145,6 +145,38 @@ router.post('/process-visit', async (req, res) => {
 });
 
 /**
+ * Get today's accepted visitor visits (for dashboard)
+ * GET /api/receptionist/today-visits
+ */
+router.get('/today-visits', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                id, name, phone_number, email, purpose, whom_to_meet,
+                check_in_time as in_time,
+                check_out_time as out_time,
+                status, approved_by, created_at, place
+            FROM visitors
+            WHERE status = 'accepted' AND DATE(check_in_time) = CURRENT_DATE
+            ORDER BY check_in_time DESC
+        `;
+
+        const [rows] = await promisePool.execute(query);
+
+        res.json({
+            success: true,
+            visits: rows
+        });
+    } catch (error) {
+        console.error('Error fetching today\'s visits:', error);
+        res.status(500).json({
+            success: false,
+            message: 'Failed to fetch today\'s visits'
+        });
+    }
+});
+
+/**
  * Get all visitor visits (for dashboard)
  * GET /api/receptionist/all-visits
  */
