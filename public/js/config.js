@@ -29,6 +29,7 @@ const API_ENDPOINTS = {
     pendingVisits: `${API_BASE_URL}/receptionist/pending-visits`,
     processVisit: `${API_BASE_URL}/receptionist/process-visit`,
     allVisits: `${API_BASE_URL}/receptionist/all-visits`,
+    todayVisits: `${API_BASE_URL}/receptionist/today-visits`,
     receptionistStats: `${API_BASE_URL}/receptionist/stats`,
 
     // Security

@@ -71,25 +71,34 @@ async function loadPendingVisits() {
 // Load all visits
 async function loadAllVisits() {
     try {
-        const response = await apiRequest(API_ENDPOINTS.allVisits);
+        const response = await apiRequest(API_ENDPOINTS.todayVisits);
 
         if (response.success && response.visits.length > 0) {
             const tbody = document.getElementById('allVisitsBody');
-            tbody.innerHTML = response.visits.map(visit => `
-                <tr>
-                    <td>${visit.name}</td>
-                    <td>${visit.phone_number}</td>
-                    <td>${visit.purpose}</td>
-                    <td>${visit.whom_to_meet}</td>
-                    <td>${formatDateTime(visit.in_time)}</td>
-                    <td>${visit.out_time ? formatDateTime(visit.out_time) : 'Not checked out'}</td>
-                    <td>
-                        <span class="status-badge status-${visit.status}">
-                            ${visit.status.toUpperCase()}
-                        </span>
-                    </td>
-                </tr>
-            `).join('');
+            tbody.innerHTML = response.visits.map(visit => {
+                const isInside = !visit.out_time;
+                const statusText = isInside ? 'Inside Campus' : 'Checked Out';
+                const statusColor = isInside ? 'inside' : 'checked-out';
+                const outTimeDisplay = isInside 
+                    ? '<span style="color: #dc3545; font-weight: 500;">Not Checked Out</span>' 
+                    : formatDateTime(visit.out_time);
+                
+                return `
+                    <tr>
+                        <td>${visit.name}</td>
+                        <td>${visit.phone_number}</td>
+                        <td>${visit.purpose || '-'}</td>
+                        <td>${visit.whom_to_meet || '-'}</td>
+                        <td>${formatDateTime(visit.in_time)}</td>
+                        <td>${outTimeDisplay}</td>
+                        <td>
+                            <span class="status-badge status-${statusColor}">
+                                ${statusText}
+                            </span>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         } else {
             document.getElementById('allVisitsBody').innerHTML = 
                 '<tr><td colspan="7" class="no-data">No visits today</td></tr>';

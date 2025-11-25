@@ -194,6 +194,18 @@ tbody td {
     color: #2E7D32;
 }
 
+.status-inside {
+    background: #FFEBEE;
+    color: #C62828;
+    font-weight: 600;
+}
+
+.status-checked-out {
+    background: #E8F5E9;
+    color: #2E7D32;
+    font-weight: 600;
+}
+
 /* Action Buttons in Tables */
 .btn-accept {
     background: #4CAF50;
