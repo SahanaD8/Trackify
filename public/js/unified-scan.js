@@ -76,6 +76,8 @@ async function checkPhoneNumber() {
 // Show Visitor Section
 function showVisitorSection(visitorData) {
     document.getElementById('phoneEntrySection').style.display = 'none';
+    document.getElementById('staffSection').style.display = 'none';
+    document.getElementById('visitorCheckoutSection').style.display = 'none';
     document.getElementById('visitorSection').style.display = 'block';
 
     if (isNewVisitor) {
@@ -94,6 +96,8 @@ function showVisitorSection(visitorData) {
 // Show Visitor Checkout Section
 function showVisitorCheckoutSection(visitorData) {
     document.getElementById('phoneEntrySection').style.display = 'none';
+    document.getElementById('visitorSection').style.display = 'none';
+    document.getElementById('staffSection').style.display = 'none';
     document.getElementById('visitorCheckoutSection').style.display = 'block';
     showMessage(`${visitorData.name}, you are currently checked in. Would you like to check out?`, 'info');
 }
@@ -101,6 +105,8 @@ function showVisitorCheckoutSection(visitorData) {
 // Show Staff Section
 async function showStaffSection(staffData) {
     document.getElementById('phoneEntrySection').style.display = 'none';
+    document.getElementById('visitorSection').style.display = 'none';
+    document.getElementById('visitorCheckoutSection').style.display = 'none';
     
     try {
         // Check staff's last log to determine if they're inside or outside
