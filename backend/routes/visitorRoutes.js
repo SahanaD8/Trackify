@@ -12,7 +12,8 @@ router.get('/check/:phoneNumber', async (req, res) => {
     try {
         const { phoneNumber } = req.params;
 
-        const query = 'SELECT * FROM visitors WHERE phone_number = ?';
+        // Get the most recent visitor record
+        const query = 'SELECT * FROM visitors WHERE phone_number = ? ORDER BY created_at DESC LIMIT 1';
         const [rows] = await promisePool.execute(query, [phoneNumber]);
 
         let hasActiveVisit = false;
@@ -131,24 +132,43 @@ router.post('/check-in', async (req, res) => {
 
         const visitor = visitorRows[0];
 
-        // Update visitor record with visit details (NO check_in_time yet - only on approval)
-        const updateQuery = `
-            UPDATE visitors 
-            SET purpose = ?, whom_to_meet = ?, status = 'pending'
-            WHERE id = ?
+        // Check if visitor has an active (pending or accepted without checkout) visit
+        const activeVisitQuery = `
+            SELECT * FROM visitors 
+            WHERE phone_number = ? 
+            AND (status = 'pending' OR (status = 'accepted' AND check_out_time IS NULL))
+            ORDER BY created_at DESC 
+            LIMIT 1
+        `;
+        const [activeVisits] = await promisePool.execute(activeVisitQuery, [phoneNumber]);
+
+        if (activeVisits.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'You already have an active visit. Please check out first or wait for approval.'
+            });
+        }
+
+        // Create NEW visitor record for this visit (NO check_in_time yet - only on approval)
+        const insertQuery = `
+            INSERT INTO visitors (name, phone_number, email, place, purpose, whom_to_meet, status, is_returning)
+            VALUES (?, ?, ?, ?, ?, ?, 'pending', true)
         `;
         
-        await promisePool.execute(updateQuery, [
+        const [result] = await promisePool.execute(insertQuery, [
+            visitor.name,
+            phoneNumber,
+            visitor.email,
+            visitor.place,
             purpose,
-            whomToMeet,
-            visitor.id
+            whomToMeet
         ]);
 
         res.json({
             success: true,
             message: 'Visit request submitted. Waiting for receptionist approval.',
             visit: {
-                id: visitor.id,
+                id: result.insertId,
                 visitorName: visitor.name,
                 purpose,
                 whomToMeet,
